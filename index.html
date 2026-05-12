@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>perps_model — dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="dark"] {
+  --bg: #0a0a0a;
+  --surface: #121212;
+  --elevated: #181818;
+  --border: rgba(255,255,255,0.07);
+  --border-strong: rgba(255,255,255,0.13);
+  --text: #fafafa;
+  --text-muted: #999996;
+  --text-faint: #5a5a57;
+  --green: #4ade80;
+  --green-soft: rgba(74,222,128,0.13);
+  --red: #f87171;
+  --red-soft: rgba(248,113,113,0.13);
+  --blue: #60a5fa;
+  --blue-soft: rgba(96,165,250,0.13);
+  --amber: #fbbf24;
+  --amber-soft: rgba(251,191,36,0.13);
+  --grid: rgba(255,255,255,0.05);
+}
+:root[data-theme="light"] {
+  --bg: #fafaf8;
+  --surface: #ffffff;
+  --elevated: #ffffff;
+  --border: rgba(0,0,0,0.08);
+  --border-strong: rgba(0,0,0,0.16);
+  --text: #0a0a0a;
+  --text-muted: #525250;
+  --text-faint: #a3a3a0;
+  --green: #15803d;
+  --green-soft: rgba(21,128,61,0.10);
+  --red: #b91c1c;
+  --red-soft: rgba(185,28,28,0.10);
+  --blue: #1e40af;
+  --blue-soft: rgba(30,64,175,0.10);
+  --amber: #b45309;
+  --amber-soft: rgba(180,83,9,0.10);
+  --grid: rgba(0,0,0,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--text); font-family: 'Geist', -apple-system, sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+.mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: "tnum" 1, "ss01" 1; }
+.muted { color: var(--text-muted); }
+.faint { color: var(--text-faint); }
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+.tiny { font-size: 11px; }
+.label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+
+/* Top bar */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex; align-items: center; gap: 32px;
+  height: 52px;
+}
+.brand { font-family: 'Geist Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: -0.02em; }
+.brand::before { content: '◐ '; color: var(--green); }
+.tabs { display: flex; gap: 2px; height: 100%; }
+.tab-btn {
+  background: none; border: none; cursor: pointer; color: var(--text-muted);
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  padding: 0 14px; height: 100%;
+  display: inline-flex; align-items: center;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--text); }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 16px; font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--text-muted); }
+.live-indicator { display: inline-flex; align-items: center; gap: 7px; }
+.live-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+.theme-toggle {
+  background: none; border: 1px solid var(--border); cursor: pointer;
+  color: var(--text-muted); padding: 5px 10px; border-radius: 6px;
+  font-family: inherit; font-size: 12px;
+}
+.theme-toggle:hover { color: var(--text); border-color: var(--border-strong); }
+
+/* Layout */
+main { max-width: 1480px; margin: 0 auto; padding: 20px 24px 60px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+.card-elevated {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.card-title { font-size: 13px; font-weight: 500; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+
+/* KPI cards (hero) */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+.kpi-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; margin-bottom: 8px; }
+.kpi-value { font-family: 'Geist Mono', monospace; font-size: 26px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.1; }
+.kpi-sub { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+/* Stat cards (smaller) */
+.stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; margin-bottom: 6px; }
+.stat-value { font-family: 'Geist Mono', monospace; font-size: 18px; font-weight: 500; line-height: 1.1; }
+.stat-sub { font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+/* Charts */
+.chart-wrap { position: relative; width: 100%; }
+.chart-h-200 { height: 220px; }
+.chart-h-150 { height: 160px; }
+.chart-h-80 { height: 70px; }
+.chart-h-300 { height: 280px; }
+
+/* Range chips */
+.range-chips { display: flex; gap: 2px; font-family: 'Geist Mono', monospace; font-size: 11px; }
+.range-chip { padding: 4px 10px; border-radius: 4px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+.range-chip:hover { color: var(--text); }
+.range-chip.active { background: var(--elevated); color: var(--text); border: 1px solid var(--border); padding: 3px 9px; }
+
+/* Legends */
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-swatch { width: 12px; height: 2px; }
+.legend-swatch.dashed { border-top: 1px dashed; border-color: inherit; }
+
+/* Two-column layout */
+.row-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 16px; }
+.row-12 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.row-equal-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+
+/* Trades table */
+.trade-row { display: grid; grid-template-columns: 60px 60px 1fr 90px; gap: 8px; padding: 8px 0; font-family: 'Geist Mono', monospace; font-size: 12px; border-bottom: 1px solid var(--border); }
+.trade-row:last-child { border-bottom: none; }
+.trade-row.head { color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 0; }
+.trade-row .right { text-align: right; }
+
+/* Forecast panel */
+.kv-row { display: flex; justify-content: space-between; padding: 8px 0; font-family: 'Geist Mono', monospace; font-size: 12px; border-bottom: 1px solid var(--border); }
+.kv-row:last-child { border-bottom: none; }
+.kv-row .key { color: var(--text-muted); }
+.kv-row .val { font-weight: 500; }
+
+/* Reports table */
+.filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-input {
+  background: var(--surface); border: 1px solid var(--border); color: var(--text);
+  padding: 7px 12px; border-radius: 6px; font-family: inherit; font-size: 13px;
+  min-width: 240px;
+}
+.filter-input:focus { outline: none; border-color: var(--border-strong); }
+.filter-pill {
+  background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
+  padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.15s;
+}
+.filter-pill:hover { color: var(--text); }
+.filter-pill.active { color: var(--text); border-color: var(--border-strong); background: var(--elevated); }
+.filter-pill .count { color: var(--text-faint); }
+.spacer { flex: 1; }
+
+.reports-table {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  overflow: hidden;
+}
+.reports-row {
+  display: grid;
+  grid-template-columns: 130px 90px 180px 1fr 90px 90px 70px 24px;
+  gap: 16px; align-items: center;
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  font-family: 'Geist Mono', monospace; font-size: 12px;
+  cursor: pointer; transition: background 0.1s;
+}
+.reports-row:last-child { border-bottom: none; }
+.reports-row:not(.head):hover { background: var(--elevated); }
+.reports-row.head { color: var(--text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; cursor: default; padding: 11px 18px; background: var(--bg); }
+.mode-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em;
+  font-family: 'Geist', sans-serif;
+}
+.mode-badge.batch { background: var(--blue-soft); color: var(--blue); }
+.mode-badge.holdout { background: var(--amber-soft); color: var(--amber); }
+.mode-badge.live { background: var(--green-soft); color: var(--green); }
+.mode-badge.decision { background: var(--blue-soft); color: var(--blue); }
+.sharpe-bar {
+  display: flex; align-items: center; gap: 8px;
+}
+.sharpe-bar-track {
+  width: 60px; height: 4px; background: var(--elevated); border-radius: 2px; overflow: hidden;
+}
+.sharpe-bar-fill { height: 100%; background: var(--green); border-radius: 2px; }
+.chevron { color: var(--text-faint); font-size: 14px; line-height: 1; }
+
+/* Compare tab */
+.compare-header { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; margin-bottom: 20px; }
+.run-pick { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; }
+.run-pick .id { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--text-muted); }
+.run-pick .name { font-size: 16px; font-weight: 500; margin-top: 2px; }
+.run-pick .meta { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+.run-pick.a { border-left: 2px solid var(--blue); }
+.run-pick.b { border-left: 2px solid var(--amber); }
+.vs { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--text-faint); padding: 0 8px; }
+
+.verdict-banner {
+  background: var(--green-soft); border: 1px solid var(--green); color: var(--green);
+  padding: 14px 18px; border-radius: 8px; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 13px;
+}
+.verdict-banner .badge { font-weight: 500; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.08); font-family: 'Geist Mono', monospace; font-size: 11px; }
+
+.compare-grid { display: grid; grid-template-columns: 1fr 80px 1fr; gap: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.compare-row { display: contents; }
+.compare-cell { padding: 12px 18px; border-bottom: 1px solid var(--border); font-family: 'Geist Mono', monospace; font-size: 13px; }
+.compare-cell.label-cell { color: var(--text-muted); font-family: 'Geist', sans-serif; font-size: 12px; text-align: center; }
+.compare-cell.a { text-align: right; border-right: 1px solid var(--border); }
+.compare-cell.b { border-left: 1px solid var(--border); }
+.compare-cell.delta-cell { text-align: center; font-size: 11px; color: var(--text-muted); border-right: 1px solid var(--border); border-left: 1px solid var(--border); padding: 12px 8px; }
+.delta-pos { color: var(--green); }
+.delta-neg { color: var(--red); }
+.compare-row:last-child .compare-cell { border-bottom: none; }
+
+/* Decisions tab */
+.decision-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  margin-bottom: 12px; overflow: hidden;
+}
+.decision-card .head {
+  display: grid; grid-template-columns: 110px 1fr auto; gap: 18px; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.decision-card .date { font-family: 'Geist Mono', monospace; font-size: 13px; color: var(--text-muted); }
+.decision-card .verdict { font-size: 14px; font-weight: 500; }
+.verdict-badge {
+  display: inline-block; padding: 4px 10px; border-radius: 4px;
+  font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em;
+  font-family: 'Geist', sans-serif;
+}
+.verdict-badge.ok { background: var(--green-soft); color: var(--green); }
+.verdict-badge.monitor { background: var(--amber-soft); color: var(--amber); }
+.verdict-badge.retrain { background: var(--red-soft); color: var(--red); }
+.decision-card .body { padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.trigger-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.trigger-chip {
+  font-family: 'Geist Mono', monospace; font-size: 11px;
+  padding: 3px 8px; border-radius: 4px;
+  background: var(--elevated); color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.trigger-chip.fire-soft { background: var(--amber-soft); color: var(--amber); border-color: transparent; }
+.trigger-chip.fire-hard { background: var(--red-soft); color: var(--red); border-color: transparent; }
+
+.decision-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.decision-stat .lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.decision-stat .val { font-family: 'Geist Mono', monospace; font-size: 14px; font-weight: 500; }
+.decision-stat .delta { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* Section headers (used sparingly) */
+.section-h { font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; margin-top: 4px; }
+
+/* Risk events feed */
+.risk-event { display: grid; grid-template-columns: 60px 110px 1fr; gap: 8px; padding: 8px 0; font-family: 'Geist Mono', monospace; font-size: 11px; border-bottom: 1px solid var(--border); }
+.risk-event:last-child { border-bottom: none; }
+.risk-event .time { color: var(--text-muted); }
+.risk-event .guard { color: var(--amber); }
+
+/* Subtle divider */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* Page header (each tab has one) */
+.page-header { margin-bottom: 18px; display: flex; align-items: baseline; justify-content: space-between; }
+.page-title { font-size: 18px; font-weight: 500; letter-spacing: -0.01em; }
+.page-meta { font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--text-muted); }
+
+/* Responsive (basic) */
+@media (max-width: 1100px) {
+  .kpi-grid, .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .row-2, .row-12, .row-3, .row-equal-2 { grid-template-columns: 1fr; }
+  .reports-row { grid-template-columns: 100px 80px 140px 1fr 70px 70px 24px; }
+  .reports-row .col-trades { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="brand">perps_model</span>
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="live">Live</button>
+    <button class="tab-btn" data-tab="reports">Reports</button>
+    <button class="tab-btn" data-tab="compare">Compare</button>
+    <button class="tab-btn" data-tab="decisions">Decisions</button>
+  </nav>
+  <div class="topbar-right">
+    <span class="live-indicator">
+      <span class="live-dot"></span>
+      <span>BTC · 1h · last bar 12:00 UTC</span>
+    </span>
+    <button class="theme-toggle" id="themeToggle">light</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ========== LIVE TAB ========== -->
+<section class="tab-panel active" id="tab-live">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Live paper trading</div>
+      <div class="page-meta muted">Run 01HXYZ8K2QM5 · started 23 days ago · model v3 (frozen)</div>
+    </div>
+  </div>
+
+  <!-- Hero KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Equity</div>
+      <div class="kpi-value">$10,247.83</div>
+      <div class="kpi-sub pos">▲ +$247.83 · +2.48%</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Position</div>
+      <div class="kpi-value">+$8,500</div>
+      <div class="kpi-sub muted">LONG · 2.0× · BTC</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">24h P&amp;L</div>
+      <div class="kpi-value pos">+$87.20</div>
+      <div class="kpi-sub muted">+0.86% · 12 trades</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Forecast (ŷ)</div>
+      <div class="kpi-value pos">+0.0023</div>
+      <div class="kpi-sub muted">σ̂=0.0041 · signal +1</div>
+    </div>
+  </div>
+
+  <!-- Equity + drawdown -->
+  <div class="card" style="margin-bottom: 16px;">
+    <div class="card-title">
+      <span>Equity curve <span class="muted tiny mono" style="margin-left: 8px;">net of fees + slippage + funding</span></span>
+      <div class="range-chips">
+        <span class="range-chip active">7D</span>
+        <span class="range-chip">30D</span>
+        <span class="range-chip">90D</span>
+        <span class="range-chip">All</span>
+      </div>
+    </div>
+    <div class="legend">
+      <span class="legend-item" style="color:var(--blue);"><span class="legend-swatch" style="background:var(--blue);"></span><span class="muted">Model · </span><span class="mono" style="color:var(--text);">+2.48%</span></span>
+      <span class="legend-item" style="color:var(--text-muted);"><span class="legend-swatch dashed"></span><span class="muted">Buy &amp; hold · </span><span class="mono" style="color:var(--text);">+1.12%</span></span>
+      <span class="legend-item" style="color:var(--amber);"><span class="legend-swatch" style="background:var(--amber);"></span><span class="muted">Momentum · </span><span class="mono" style="color:var(--text);">+0.74%</span></span>
+    </div>
+    <div class="chart-wrap chart-h-200">
+      <canvas id="equityChart"></canvas>
+    </div>
+    <div class="divider"></div>
+    <div class="label">Drawdown · max -3.1% on day 4 · recovered in 11h</div>
+    <div class="chart-wrap chart-h-80" style="margin-top: 8px;">
+      <canvas id="ddChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Stats grid -->
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="stat-label">Sharpe</div>
+      <div class="stat-value">1.21</div>
+      <div class="stat-sub">95% CI [0.94, 1.48]</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Max DD</div>
+      <div class="stat-value">-3.1%</div>
+      <div class="stat-sub">11h to recover</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Win rate</div>
+      <div class="stat-value">53.2%</div>
+      <div class="stat-sub">47/88 trades</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Profit factor</div>
+      <div class="stat-value">1.42</div>
+      <div class="stat-sub">avg win / loss</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Time in market</div>
+      <div class="stat-value">64.3%</div>
+      <div class="stat-sub">352/548 bars</div>
+    </div>
+  </div>
+
+  <!-- Bottom row: hour analysis | costs | forecast diagnostics -->
+  <div class="row-12">
+    <div class="card">
+      <div class="card-title">P&amp;L by hour (UTC)</div>
+      <div class="chart-wrap chart-h-150">
+        <canvas id="hourChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Cost attribution</div>
+      <div class="chart-wrap chart-h-150">
+        <canvas id="costChart"></canvas>
+      </div>
+      <div style="margin-top: 12px; font-size: 11px; font-family: 'Geist Mono', monospace; color: var(--text-muted); display: flex; flex-direction: column; gap: 5px;">
+        <div style="display: flex; justify-content: space-between;"><span><span style="display:inline-block;width:8px;height:8px;background:var(--blue);border-radius:2px;margin-right:6px;"></span>Fees</span><span class="mono" style="color:var(--text);">$24.18</span></div>
+        <div style="display: flex; justify-content: space-between;"><span><span style="display:inline-block;width:8px;height:8px;background:var(--text-muted);border-radius:2px;margin-right:6px;"></span>Slippage</span><span class="mono" style="color:var(--text);">$17.84</span></div>
+        <div style="display: flex; justify-content: space-between;"><span><span style="display:inline-block;width:8px;height:8px;background:var(--amber);border-radius:2px;margin-right:6px;"></span>Funding</span><span class="mono" style="color:var(--text);">$15.52</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Forecast diagnostics</div>
+      <div class="kv-row"><span class="key">Last forecast</span><span class="val pos">+0.0023</span></div>
+      <div class="kv-row"><span class="key">Residual σ̂</span><span class="val">0.0041</span></div>
+      <div class="kv-row"><span class="key">Threshold (k=1.0)</span><span class="val">±0.0041</span></div>
+      <div class="kv-row"><span class="key">Forward IC (7d)</span><span class="val">+0.041</span></div>
+      <div class="kv-row"><span class="key">Holdout IC</span><span class="val">+0.038</span></div>
+      <div class="kv-row"><span class="key">vs holdout</span><span class="val pos">within tolerance ✓</span></div>
+      <div class="kv-row"><span class="key">Hit rate (7d)</span><span class="val">54.2%</span></div>
+      <div class="kv-row"><span class="key">Days since retrain</span><span class="val">23</span></div>
+    </div>
+  </div>
+
+  <!-- Recent fills + risk events -->
+  <div class="row-equal-2">
+    <div class="card">
+      <div class="card-title">Recent fills <span class="muted tiny mono">last 8</span></div>
+      <div class="trade-row head">
+        <span>Time</span><span>Side</span><span>Notional</span><span class="right">P&amp;L</span>
+      </div>
+      <div class="trade-row"><span>12:00</span><span class="pos">LONG</span><span>$8,500</span><span class="right pos">+$23.40</span></div>
+      <div class="trade-row"><span>11:00</span><span class="muted">FLAT</span><span>—</span><span class="right muted">$0.00</span></div>
+      <div class="trade-row"><span>10:00</span><span class="neg">SHORT</span><span>$8,400</span><span class="right neg">-$5.10</span></div>
+      <div class="trade-row"><span>09:00</span><span class="pos">LONG</span><span>$8,300</span><span class="right pos">+$45.80</span></div>
+      <div class="trade-row"><span>08:00</span><span class="pos">LONG</span><span>$8,200</span><span class="right pos">+$12.60</span></div>
+      <div class="trade-row"><span>07:00</span><span class="muted">FLAT</span><span>—</span><span class="right muted">$0.00</span></div>
+      <div class="trade-row"><span>06:00</span><span class="neg">SHORT</span><span>$8,150</span><span class="right neg">-$8.30</span></div>
+      <div class="trade-row"><span>05:00</span><span class="pos">LONG</span><span>$8,100</span><span class="right pos">+$18.90</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Risk events <span class="muted tiny mono">last 24h</span></div>
+      <div class="risk-event"><span class="time">10:00</span><span class="guard">LeverageCap</span><span class="muted">Clipped 2.4× → 2.0× max</span></div>
+      <div class="risk-event"><span class="time">06:00</span><span class="guard">LeverageCap</span><span class="muted">Clipped 2.1× → 2.0× max</span></div>
+      <div class="risk-event"><span class="time">02:00</span><span class="guard">LeverageCap</span><span class="muted">Clipped 2.3× → 2.0× max</span></div>
+      <div class="risk-event"><span class="time">21:00</span><span class="guard">LeverageCap</span><span class="muted">Clipped 2.2× → 2.0× max</span></div>
+      <div style="margin-top: 12px; padding: 10px; background: var(--green-soft); border-radius: 6px; font-size: 12px; color: var(--green);">
+        ✓ Zero LiquidationModel triggers · zero DrawdownStop triggers
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ========== REPORTS TAB ========== -->
+<section class="tab-panel" id="tab-reports">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Reports</div>
+      <div class="page-meta muted">247 reports · sorted by most recent</div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <input type="search" class="filter-input" placeholder="Search by run_id, period, config hash...">
+    <span class="filter-pill active">All <span class="count">247</span></span>
+    <span class="filter-pill">Batch <span class="count">182</span></span>
+    <span class="filter-pill">Holdout <span class="count">14</span></span>
+    <span class="filter-pill">Live <span class="count">23</span></span>
+    <span class="filter-pill">Decision <span class="count">28</span></span>
+    <span class="spacer"></span>
+    <span class="filter-pill">Asset: BTC ▾</span>
+    <span class="filter-pill">Period: 30d ▾</span>
+    <span class="filter-pill">Min Sharpe: 0.5 ▾</span>
+  </div>
+
+  <div class="reports-table">
+    <div class="reports-row head">
+      <span>Run ID</span><span>Mode</span><span>Period</span><span>Sharpe</span><span class="right">Max DD</span><span class="col-trades right">Trades</span><span class="right">Status</span><span></span>
+    </div>
+    <div class="reports-row">
+      <span class="muted">01HXYZ8K2QM5</span>
+      <span><span class="mode-badge live">Live</span></span>
+      <span class="muted">2026-04-11 → ongoing</span>
+      <span><span class="sharpe-bar"><span class="sharpe-bar-track"><span class="sharpe-bar-fill" style="width:60%;"></span></span><span>1.21</span></span></span>
+      <span class="right neg">-3.1%</span>
+      <span class="col-trades right">88</span>
+      <span class="right pos">✓</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="reports-row">
+      <span class="muted">01HXYZ7M1NB3</span>
+      <span><span class="mode-badge holdout">Holdout</span></span>
+      <span class="muted">2026-03-15 → 2026-04-11</span>
+      <span><span class="sharpe-bar"><span class="sharpe-bar-track"><span class="sharpe-bar-fill" style="width:67%;"></span></span><span>1.34</span></span></span>
+      <span class="right neg">-2.8%</span>
+      <span class="col-trades right">156</span>
+      <span class="right pos">✓</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="reports-row">
+      <span class="muted">01HXYZ6P9KL8</span>
+      <span><span class="mode-badge batch">Batch</span></span>
+      <span class="muted">2025-09-15 → 2026-03-15</span>
+      <span><span class="sharpe-bar"><span class="sharpe-bar-track"><span class="sharpe-bar-fill" style="width:74%;"></span></span><span>1.47</span></span></span>
+      <span class="right neg">-4.2%</span>
+      <span class="col-trades right">2,184</span>
+      <span class="right pos">✓</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="reports-row">
+      <span class="muted">01HXYZ5N4HJ2</span>
+      <span><span class="mode-badge batch">Batch</span></span>
+      <span class="muted">2025-09-15 → 2026-03-15</span>
+      <span><span class="sharpe-bar"><span class="sharpe-bar-track"><span class="sharpe-bar-fill" style="width:62%;"></span></span><span>1.24</span></span></span>
+      <span class="right neg">-5.1%</span>
+      <span class="col-trades right">2,184</span>
+      <span class="right muted">leverage 4×</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="reports-row">
+      <span class="muted">01HXYZ5N4HJ1</span>
+      <span><span class="mode-badge batch">Batch</span></span>
+      <span class="muted">2025-09-15 → 2026-03-15</span>
+      <span><span class="sharpe-bar"><span class="sharpe-bar-track"><span class="sharpe-bar-fill" style="width:71%;"></span></span><span>1.42</span></span></span>
+      <span class="right neg">-3.8%</span>
+      <span class="col-trades right">2,184</span>
+      <span class="right muted">leverage 3×</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="reports-row">
+      <span class="muted">01HXYZ5N4HJ0</span>
+      <span><span class="mode-badge batch">Batch</span></span>
+      <span class="muted">2025-09-15 → 2026-03-15</span>
+      <span><span class="sharpe-bar"><span class="sharpe-bar-track"><span class="sharpe-bar-fill" style="width:74%;"></span></span><span>1.47</span></span></span>
+      <span class="right neg">-2.9%</span>
+      <span class="col-trades right">2,184</span>
+      <span class="right muted">leverage 2×</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="reports-row">
+      <span class="muted">01HXYZ4M3GH9</span>
+      <span><span class="mode-badge batch">Batch</span></span>
+      <span class="muted">2025-09-15 → 2026-03-15</span>
+      <span><span class="sharpe-bar"><span class="sharpe-bar-track"><span class="sharpe-bar-fill" style="width:55%;"></span></span><span>1.10</span></span></span>
+      <span class="right neg">-2.1%</span>
+      <span class="col-trades right">2,184</span>
+      <span class="right muted">leverage 1×</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="reports-row">
+      <span class="muted">01HXYZ3K2FG7</span>
+      <span><span class="mode-badge decision">Decision</span></span>
+      <span class="muted">2026-05-04 (week 23)</span>
+      <span class="muted">— </span>
+      <span class="right muted">—</span>
+      <span class="col-trades right muted">—</span>
+      <span class="right pos">no action</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="reports-row">
+      <span class="muted">01HXYZ2J1EF5</span>
+      <span><span class="mode-badge decision">Decision</span></span>
+      <span class="muted">2026-04-27 (week 22)</span>
+      <span class="muted">—</span>
+      <span class="right muted">—</span>
+      <span class="col-trades right muted">—</span>
+      <span class="right" style="color:var(--amber);">monitor</span>
+      <span class="chevron">›</span>
+    </div>
+    <div class="reports-row">
+      <span class="muted">01HXYZ1H0DE3</span>
+      <span><span class="mode-badge batch">Batch</span></span>
+      <span class="muted">2025-06-15 → 2025-12-15</span>
+      <span><span class="sharpe-bar"><span class="sharpe-bar-track"><span class="sharpe-bar-fill" style="width:32%;background:var(--red);"></span></span><span>0.64</span></span></span>
+      <span class="right neg">-12.3%</span>
+      <span class="col-trades right">1,820</span>
+      <span class="right neg">✗ failed</span>
+      <span class="chevron">›</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ========== COMPARE TAB ========== -->
+<section class="tab-panel" id="tab-compare">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Compare</div>
+      <div class="page-meta muted">Frozen v3 (live) vs candidate v4 (retrained on 23 days of live data)</div>
+    </div>
+  </div>
+
+  <div class="compare-header">
+    <div class="run-pick a">
+      <div class="id">01HXYZ8K2QM5</div>
+      <div class="name">Model v3 (frozen)</div>
+      <div class="meta">Live · 23 days · 2.0× lev</div>
+    </div>
+    <div class="vs">VS</div>
+    <div class="run-pick b">
+      <div class="id">01HXYZ9L3RN6</div>
+      <div class="name">Model v4 (candidate)</div>
+      <div class="meta">Holdout · same 23 days · 2.0× lev</div>
+    </div>
+  </div>
+
+  <div class="verdict-banner">
+    <span class="badge">VERDICT</span>
+    <span>Candidate v4 improves Sharpe by <span class="mono" style="font-weight:500;">+0.18</span> over v3 with statistical significance · Diebold-Mariano <span class="mono" style="font-weight:500;">p=0.034</span></span>
+  </div>
+
+  <div class="row-2">
+    <div class="card">
+      <div class="card-title">
+        <span>Equity overlay</span>
+        <span class="muted tiny mono">23 days · 552 bars</span>
+      </div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-swatch" style="background:var(--blue);"></span><span class="muted">v3 frozen · </span><span class="mono" style="color:var(--text);">+2.48%</span></span>
+        <span class="legend-item"><span class="legend-swatch" style="background:var(--amber);"></span><span class="muted">v4 candidate · </span><span class="mono" style="color:var(--text);">+3.12%</span></span>
+      </div>
+      <div class="chart-wrap chart-h-300">
+        <canvas id="compareEquity"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Headline metrics</div>
+      <div class="compare-grid" style="border:none;">
+        <div class="compare-row">
+          <div class="compare-cell a"><span class="muted tiny">v3 </span>1.21</div>
+          <div class="compare-cell label-cell">Sharpe</div>
+          <div class="compare-cell b">1.39 <span class="muted tiny">v4</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell a"><span class="muted tiny">v3 </span>-3.1%</div>
+          <div class="compare-cell label-cell">Max DD</div>
+          <div class="compare-cell b">-2.4% <span class="muted tiny">v4</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell a"><span class="muted tiny">v3 </span>+2.48%</div>
+          <div class="compare-cell label-cell">Return</div>
+          <div class="compare-cell b">+3.12% <span class="muted tiny">v4</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell a"><span class="muted tiny">v3 </span>53.2%</div>
+          <div class="compare-cell label-cell">Win rate</div>
+          <div class="compare-cell b">55.1% <span class="muted tiny">v4</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell a"><span class="muted tiny">v3 </span>1.42</div>
+          <div class="compare-cell label-cell">Profit factor</div>
+          <div class="compare-cell b">1.58 <span class="muted tiny">v4</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell a"><span class="muted tiny">v3 </span>+0.041</div>
+          <div class="compare-cell label-cell">Forward IC</div>
+          <div class="compare-cell b">+0.052 <span class="muted tiny">v4</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-cell a"><span class="muted tiny">v3 </span>$57.54</div>
+          <div class="compare-cell label-cell">Total costs</div>
+          <div class="compare-cell b">$61.20 <span class="muted tiny">v4</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row-equal-2">
+    <div class="card">
+      <div class="card-title">Drawdown overlay</div>
+      <div class="chart-wrap chart-h-200">
+        <canvas id="compareDD"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Return distribution</div>
+      <div class="chart-wrap chart-h-200">
+        <canvas id="compareDist"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Statistical evidence</div>
+    <div class="kv-row"><span class="key">Diebold-Mariano test (squared errors)</span><span class="val">DM stat = 2.13, p = 0.034</span></div>
+    <div class="kv-row"><span class="key">Bootstrap Sharpe difference (10k resamples)</span><span class="val">+0.18 [95% CI: +0.04, +0.31]</span></div>
+    <div class="kv-row"><span class="key">Period overlap</span><span class="val pos">100% (same 552 bars)</span></div>
+    <div class="kv-row"><span class="key">Config hash match</span><span class="val muted">v3: a3f2... · v4: b8e1... (different — model differs)</span></div>
+    <div class="kv-row"><span class="key">Recommendation</span><span class="val pos">Promote v4 to live (passes Phase 7 criteria on holdout) ✓</span></div>
+  </div>
+
+</section>
+
+<!-- ========== DECISIONS TAB ========== -->
+<section class="tab-panel" id="tab-decisions">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Retrain decisions</div>
+      <div class="page-meta muted">Weekly evaluator · 23 reports · last review 2 days ago</div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <span class="filter-pill active">All <span class="count">23</span></span>
+    <span class="filter-pill">No action <span class="count">18</span></span>
+    <span class="filter-pill">Monitor <span class="count">3</span></span>
+    <span class="filter-pill">Retrain <span class="count">2</span></span>
+    <span class="spacer"></span>
+    <span class="filter-pill">Range: 90d ▾</span>
+  </div>
+
+  <!-- Decision card 1: most recent, no action -->
+  <div class="decision-card">
+    <div class="head">
+      <div class="date">2026-05-04</div>
+      <div class="verdict">No retrain needed — all triggers within tolerance</div>
+      <div><span class="verdict-badge ok">No action</span></div>
+    </div>
+    <div class="body">
+      <div>
+        <div class="label" style="margin-bottom: 6px;">Triggers (0 of 9 fired)</div>
+        <div class="trigger-list">
+          <span class="trigger-chip">IcDecay</span>
+          <span class="trigger-chip">IcCollapse</span>
+          <span class="trigger-chip">IcVsHoldout</span>
+          <span class="trigger-chip">FeatureDrift</span>
+          <span class="trigger-chip">HitRateDecay</span>
+          <span class="trigger-chip">SharpeDecay</span>
+          <span class="trigger-chip">DrawdownStop</span>
+          <span class="trigger-chip">TimeSinceTrain</span>
+          <span class="trigger-chip">Liquidation</span>
+        </div>
+      </div>
+      <div class="decision-stats">
+        <div class="decision-stat">
+          <div class="lbl">Forward IC (7d)</div>
+          <div class="val pos">+0.041</div>
+          <div class="delta">vs holdout +0.038 · within tol</div>
+        </div>
+        <div class="decision-stat">
+          <div class="lbl">Sharpe (7d)</div>
+          <div class="val pos">1.21</div>
+          <div class="delta">vs holdout 1.34 · -10%</div>
+        </div>
+        <div class="decision-stat">
+          <div class="lbl">Hit rate (7d)</div>
+          <div class="val">54.2%</div>
+          <div class="delta">vs holdout 53.8% · +0.4pp</div>
+        </div>
+        <div class="decision-stat">
+          <div class="lbl">Days since train</div>
+          <div class="val">23</div>
+          <div class="delta">retrain eligible at 30+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decision card 2: monitor closely -->
+  <div class="decision-card">
+    <div class="head">
+      <div class="date">2026-04-27</div>
+      <div class="verdict">Monitor closely — single soft signal may be noise</div>
+      <div><span class="verdict-badge monitor">Monitor</span></div>
+    </div>
+    <div class="body">
+      <div>
+        <div class="label" style="margin-bottom: 6px;">Triggers (1 soft fire)</div>
+        <div class="trigger-list">
+          <span class="trigger-chip fire-soft">FeatureDrift · PSI 0.21</span>
+          <span class="trigger-chip">IcDecay</span>
+          <span class="trigger-chip">IcCollapse</span>
+          <span class="trigger-chip">HitRateDecay</span>
+          <span class="trigger-chip">SharpeDecay</span>
+          <span class="trigger-chip">DrawdownStop</span>
+          <span class="trigger-chip">TimeSinceTrain</span>
+          <span class="trigger-chip">Liquidation</span>
+        </div>
+      </div>
+      <div class="decision-stats">
+        <div class="decision-stat">
+          <div class="lbl">Drifted feature</div>
+          <div class="val mono" style="font-size:13px;">funding_zscore_24</div>
+          <div class="delta">PSI 0.21 (moderate)</div>
+        </div>
+        <div class="decision-stat">
+          <div class="lbl">Forward IC (7d)</div>
+          <div class="val pos">+0.034</div>
+          <div class="delta">vs holdout +0.038</div>
+        </div>
+        <div class="decision-stat">
+          <div class="lbl">Sharpe (7d)</div>
+          <div class="val">0.94</div>
+          <div class="delta">vs holdout 1.34 · -30%</div>
+        </div>
+        <div class="decision-stat">
+          <div class="lbl">Days since train</div>
+          <div class="val">16</div>
+          <div class="delta">below retrain min (30d)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decision card 3: retrain recommended -->
+  <div class="decision-card">
+    <div class="head">
+      <div class="date">2026-03-30</div>
+      <div class="verdict">Retrain recommended — multiple decay signals</div>
+      <div><span class="verdict-badge retrain">Retrain</span></div>
+    </div>
+    <div class="body">
+      <div>
+        <div class="label" style="margin-bottom: 6px;">Triggers (2 soft fires)</div>
+        <div class="trigger-list">
+          <span class="trigger-chip fire-soft">IcDecay · CI [-0.02, +0.06]</span>
+          <span class="trigger-chip fire-soft">FeatureDrift · PSI 0.31</span>
+          <span class="trigger-chip">IcCollapse</span>
+          <span class="trigger-chip">HitRateDecay</span>
+          <span class="trigger-chip">SharpeDecay</span>
+          <span class="trigger-chip">DrawdownStop</span>
+          <span class="trigger-chip">TimeSinceTrain</span>
+          <span class="trigger-chip">Liquidation</span>
+        </div>
+      </div>
+      <div class="decision-stats">
+        <div class="decision-stat">
+          <div class="lbl">Forward IC (7d)</div>
+          <div class="val">+0.012</div>
+          <div class="delta neg">CI includes 0 · -68% vs holdout</div>
+        </div>
+        <div class="decision-stat">
+          <div class="lbl">Sharpe (7d)</div>
+          <div class="val">+0.41</div>
+          <div class="delta neg">vs holdout 1.34 · -69%</div>
+        </div>
+        <div class="decision-stat">
+          <div class="lbl">Drifted features</div>
+          <div class="val mono" style="font-size:13px;">funding_zscore_24</div>
+          <div class="delta">PSI 0.31 (significant)</div>
+        </div>
+        <div class="decision-stat">
+          <div class="lbl">Days since train</div>
+          <div class="val">47</div>
+          <div class="delta">retrain eligible</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decision card 4 -->
+  <div class="decision-card">
+    <div class="head">
+      <div class="date">2026-03-23</div>
+      <div class="verdict">No retrain needed — all triggers within tolerance</div>
+      <div><span class="verdict-badge ok">No action</span></div>
+    </div>
+    <div class="body">
+      <div>
+        <div class="label" style="margin-bottom: 6px;">Triggers (0 of 9 fired)</div>
+        <div class="trigger-list">
+          <span class="trigger-chip">IcDecay</span>
+          <span class="trigger-chip">IcCollapse</span>
+          <span class="trigger-chip">FeatureDrift</span>
+          <span class="trigger-chip">HitRateDecay</span>
+          <span class="trigger-chip">SharpeDecay</span>
+          <span class="trigger-chip">DrawdownStop</span>
+          <span class="trigger-chip">TimeSinceTrain</span>
+          <span class="trigger-chip">Liquidation</span>
+        </div>
+      </div>
+      <div class="decision-stats">
+        <div class="decision-stat">
+          <div class="lbl">Forward IC (7d)</div>
+          <div class="val pos">+0.044</div>
+          <div class="delta">vs holdout +0.038</div>
+        </div>
+        <div class="decision-stat">
+          <div class="lbl">Sharpe (7d)</div>
+          <div class="val pos">1.38</div>
+          <div class="delta">vs holdout 1.34 · +3%</div>
+        </div>
+        <div class="decision-stat">
+          <div class="lbl">Hit rate (7d)</div>
+          <div class="val">54.8%</div>
+          <div class="delta">vs holdout 53.8%</div>
+        </div>
+        <div class="decision-stat">
+          <div class="lbl">Days since train</div>
+          <div class="val">40</div>
+          <div class="delta">healthy</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const state = {
+  initialized: { live: false, reports: false, compare: false, decisions: false },
+  charts: {}
+};
+
+function getThemeColors() {
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    text: cs.getPropertyValue('--text').trim(),
+    muted: cs.getPropertyValue('--text-muted').trim(),
+    grid: cs.getPropertyValue('--grid').trim(),
+    blue: cs.getPropertyValue('--blue').trim(),
+    amber: cs.getPropertyValue('--amber').trim(),
+    green: cs.getPropertyValue('--green').trim(),
+    red: cs.getPropertyValue('--red').trim()
+  };
+}
+
+function destroyAllCharts() {
+  Object.values(state.charts).forEach(c => c && c.destroy());
+  state.charts = {};
+  Object.keys(state.initialized).forEach(k => state.initialized[k] = false);
+}
+
+function commonAxisStyle(c) {
+  return {
+    ticks: { color: c.muted, font: { family: 'Geist Mono, monospace', size: 10 } },
+    grid: { color: c.grid, drawTicks: false }
+  };
+}
+
+function initLive() {
+  if (state.initialized.live) return;
+  const c = getThemeColors();
+
+  const labels = Array.from({ length: 168 }, (_, i) => `${Math.floor(i / 24)}d ${String(i % 24).padStart(2, '0')}h`);
+  const modelEq = [10000];
+  const bhEq = [10000];
+  const momEq = [10000];
+  for (let i = 1; i < 168; i++) {
+    const t = i / 168;
+    modelEq.push(10000 * (1 + 0.0248 * t + 0.005 * Math.sin(i * 0.3) + 0.003 * Math.sin(i * 0.07)));
+    bhEq.push(10000 * (1 + 0.0112 * t + 0.008 * Math.sin(i * 0.25)));
+    momEq.push(10000 * (1 + 0.0074 * t + 0.006 * Math.sin(i * 0.18)));
+  }
+
+  state.charts.equity = new Chart(document.getElementById('equityChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Model', data: modelEq, borderColor: c.blue, backgroundColor: c.blue + '14', borderWidth: 1.5, fill: true, pointRadius: 0, tension: 0.3 },
+        { label: 'Buy & hold', data: bhEq, borderColor: c.muted, borderWidth: 1, borderDash: [4, 3], pointRadius: 0, tension: 0.3, fill: false },
+        { label: 'Momentum', data: momEq, borderColor: c.amber, borderWidth: 1, pointRadius: 0, tension: 0.3, fill: false }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#000', titleFont: { family: 'Geist Mono, monospace', size: 11 }, bodyFont: { family: 'Geist Mono, monospace', size: 11 }, callbacks: { label: ctx => `${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}` } } },
+      scales: {
+        x: { ...commonAxisStyle(c), ticks: { ...commonAxisStyle(c).ticks, maxTicksLimit: 8, autoSkip: true } },
+        y: { ...commonAxisStyle(c), ticks: { ...commonAxisStyle(c).ticks, callback: v => '$' + Math.round(v).toLocaleString() } }
+      }
+    }
+  });
+
+  let dd = [0]; let peak = modelEq[0];
+  for (let i = 1; i < modelEq.length; i++) { peak = Math.max(peak, modelEq[i]); dd.push(((modelEq[i] - peak) / peak) * 100); }
+  state.charts.dd = new Chart(document.getElementById('ddChart'), {
+    type: 'line',
+    data: { labels, datasets: [{ data: dd, borderColor: c.red, backgroundColor: c.red + '20', borderWidth: 1, fill: 'origin', pointRadius: 0, tension: 0.3 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(2) + '%' } } },
+      scales: { x: { display: false }, y: { ...commonAxisStyle(c), ticks: { ...commonAxisStyle(c).ticks, callback: v => v.toFixed(1) + '%' }, max: 0 } }
+    }
+  });
+
+  const hourPnl = [-2, -5, -3, 1, 4, 6, 3, -1, -4, -2, 0, 3, 8, 14, 18, 22, 19, 12, 5, 2, -1, -3, -2, -1];
+  state.charts.hour = new Chart(document.getElementById('hourChart'), {
+    type: 'bar',
+    data: { labels: hourPnl.map((_, i) => i.toString().padStart(2, '0')), datasets: [{ data: hourPnl, backgroundColor: hourPnl.map(v => v >= 0 ? c.green : c.red), borderWidth: 0 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) } } },
+      scales: {
+        x: { ...commonAxisStyle(c), ticks: { ...commonAxisStyle(c).ticks, autoSkip: false, maxRotation: 0, font: { family: 'Geist Mono, monospace', size: 9 } }, grid: { display: false } },
+        y: { ...commonAxisStyle(c), ticks: { ...commonAxisStyle(c).ticks, callback: v => '$' + Math.round(v) } }
+      }
+    }
+  });
+
+  state.charts.cost = new Chart(document.getElementById('costChart'), {
+    type: 'doughnut',
+    data: { labels: ['Fees', 'Slippage', 'Funding'], datasets: [{ data: [24.18, 17.84, 15.52], backgroundColor: [c.blue, c.muted, c.amber], borderWidth: 0 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.label + ': $' + ctx.parsed.toFixed(2) } } } }
+  });
+
+  state.initialized.live = true;
+}
+
+function initCompare() {
+  if (state.initialized.compare) return;
+  const c = getThemeColors();
+
+  const labels = Array.from({ length: 168 }, (_, i) => `${Math.floor(i / 24)}d ${String(i % 24).padStart(2, '0')}h`);
+  const v3 = [10000]; const v4 = [10000];
+  for (let i = 1; i < 168; i++) {
+    const t = i / 168;
+    v3.push(10000 * (1 + 0.0248 * t + 0.005 * Math.sin(i * 0.3) + 0.003 * Math.sin(i * 0.07)));
+    v4.push(10000 * (1 + 0.0312 * t + 0.004 * Math.sin(i * 0.32) + 0.002 * Math.sin(i * 0.09)));
+  }
+
+  state.charts.cmpEq = new Chart(document.getElementById('compareEquity'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'v3 frozen', data: v3, borderColor: c.blue, backgroundColor: c.blue + '10', borderWidth: 1.5, fill: false, pointRadius: 0, tension: 0.3 },
+      { label: 'v4 candidate', data: v4, borderColor: c.amber, backgroundColor: c.amber + '10', borderWidth: 1.5, fill: false, pointRadius: 0, tension: 0.3 }
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#000', callbacks: { label: ctx => `${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}` } } },
+      scales: { x: { ...commonAxisStyle(c), ticks: { ...commonAxisStyle(c).ticks, maxTicksLimit: 8, autoSkip: true } }, y: { ...commonAxisStyle(c), ticks: { ...commonAxisStyle(c).ticks, callback: v => '$' + Math.round(v).toLocaleString() } } }
+    }
+  });
+
+  let dd3 = [0], dd4 = [0], p3 = v3[0], p4 = v4[0];
+  for (let i = 1; i < v3.length; i++) { p3 = Math.max(p3, v3[i]); dd3.push(((v3[i] - p3) / p3) * 100); p4 = Math.max(p4, v4[i]); dd4.push(((v4[i] - p4) / p4) * 100); }
+  state.charts.cmpDD = new Chart(document.getElementById('compareDD'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'v3', data: dd3, borderColor: c.blue, backgroundColor: c.blue + '15', borderWidth: 1, fill: 'origin', pointRadius: 0, tension: 0.3 },
+      { label: 'v4', data: dd4, borderColor: c.amber, backgroundColor: c.amber + '15', borderWidth: 1, fill: 'origin', pointRadius: 0, tension: 0.3 }
+    ] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { ...commonAxisStyle(c), ticks: { ...commonAxisStyle(c).ticks, callback: v => v.toFixed(1) + '%' }, max: 0 } } }
+  });
+
+  const bins = ['-1.5%', '-1%', '-0.5%', '0%', '0.5%', '1%', '1.5%'];
+  state.charts.cmpDist = new Chart(document.getElementById('compareDist'), {
+    type: 'bar',
+    data: { labels: bins, datasets: [
+      { label: 'v3', data: [3, 11, 24, 48, 39, 22, 5], backgroundColor: c.blue + '90', borderWidth: 0 },
+      { label: 'v4', data: [2, 8, 21, 51, 44, 26, 7], backgroundColor: c.amber + '90', borderWidth: 0 }
+    ] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ...commonAxisStyle(c), grid: { display: false } }, y: { ...commonAxisStyle(c) } } }
+  });
+
+  state.initialized.compare = true;
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
+  if (tab === 'live') initLive();
+  if (tab === 'compare') initCompare();
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const html = document.documentElement;
+  const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  html.dataset.theme = next;
+  document.getElementById('themeToggle').textContent = next === 'dark' ? 'light' : 'dark';
+  destroyAllCharts();
+  const active = document.querySelector('.tab-panel.active').id.replace('tab-', '');
+  if (active === 'live') initLive();
+  if (active === 'compare') initCompare();
+});
+
+initLive();
+</script>
+
+</body>
+</html>

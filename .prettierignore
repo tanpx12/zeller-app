@@ -1,0 +1,8 @@
+node_modules
+out
+.next
+src/api-client
+pnpm-lock.yaml
+coverage
+playwright-report
+test-results

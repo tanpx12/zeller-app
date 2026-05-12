@@ -1,0 +1,55 @@
+@import 'tailwindcss';
+
+/*
+ * Theme tokens — CSS variables consumed by both Tailwind utilities and
+ * chart libraries that can't read CSS vars directly (Chart.js).
+ * Keep dark + light in sync; charts read raw values via getComputedStyle().
+ */
+
+@theme {
+  --font-sans: 'Geist', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+:root[data-theme='dark'] {
+  --bg: #0a0a0a;
+  --surface: #121212;
+  --elevated: #181818;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.13);
+  --text: #fafafa;
+  --text-muted: #999996;
+  --text-faint: #5a5a57;
+  --positive: #4ade80;
+  --negative: #f87171;
+  --warning: #fbbf24;
+  --accent: #60a5fa;
+}
+
+:root[data-theme='light'] {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --elevated: #f4f4f4;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.14);
+  --text: #0a0a0a;
+  --text-muted: #6b6b6b;
+  --text-faint: #a0a0a0;
+  --positive: #16a34a;
+  --negative: #dc2626;
+  --warning: #d97706;
+  --accent: #2563eb;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+/* Numeric text uses tabular numerals + stylistic alternates so P&L columns align by decimal. */
+.font-mono,
+[class*='font-mono'] {
+  font-feature-settings: 'tnum' 1, 'ss01' 1;
+}

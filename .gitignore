@@ -1,0 +1,40 @@
+# Environment — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Claude
+.claude/cache/
+
+# Node / TypeScript
+node_modules/
+dist/
+build/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+coverage/
+
+# Playwright
+playwright-report/
+test-results/
+.playwright/
+
+# pnpm
+.pnpm-store/
+
+# Generated API client artifacts (kept in src/api-client/ but easy to forget)
+*.log
+npm-debug.log*
+pnpm-debug.log*

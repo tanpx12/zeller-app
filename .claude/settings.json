@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/claude-code-settings.json",
+
+  "permissions": {
+    "allow": [
+      "Bash(pnpm *)",
+      "Bash(pnpm dlx *)",
+      "Bash(npx *)",
+      "Bash(tsc *)",
+      "Bash(tsx *)",
+      "Bash(eslint *)",
+      "Bash(prettier *)",
+      "Bash(vitest *)",
+      "Bash(playwright *)",
+
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git checkout *)",
+      "Bash(git branch *)",
+      "Bash(git stash *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)",
+      "Read(./**/*secret*)",
+      "Read(./**/*mnemonic*)",
+      "Read(./**/*keystore*)",
+
+      "Bash(rm -rf *)",
+      "Bash(git push --force)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard *)",
+
+      "Bash(npm install*)",
+      "Bash(npm i *)",
+      "Bash(yarn *)"
+    ]
+  },
+
+  "env": {
+    "API_TIMEOUT_MS": "300000"
+  },
+
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Assess your current context window usage based on the conversation history so far — volume of files read, edits made, tool calls, and overall message length. Respond ONLY with valid JSON, no other text. If context feels above 50% full: {\"decision\": \"block\", \"reason\": \"Context is over 50% full. Run /compact first to compress the conversation, then I will reprocess your request.\"}. If context is at 50% or under: {\"decision\": \"allow\"}. Input: "
+          }
+        ]
+      }
+    ],
+
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'input=$(cat); file=$(echo \"$input\" | jq -r .tool_input.file_path 2>/dev/null); [[ -z \"$file\" || \"$file\" == \"null\" ]] && exit 0; case \"$file\" in *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs|*.json|*.md|*.css) command -v prettier >/dev/null 2>&1 && prettier --write \"$file\" --log-level silent 2>/dev/null || true ;; esac; exit 0'"
+          }
+        ]
+      }
+    ],
+
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "The context window is approaching its limit and compaction is about to occur. Before compacting, produce a structured summary with these sections: (1) FILES: files modified, key changes, current state; (2) TESTS: what was written, pass/fail status, coverage gaps; (3) TODOs: open issues, known bugs, next steps; (4) DECISIONS: architectural or implementation choices made and the reasoning. Write this summary clearly so that a fresh context can resume this work without losing critical information. Input: "
+          }
+        ]
+      }
+    ],
+
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'input=$(cat); [[ $(echo \"$input\" | jq -r .stop_hook_active) == \"true\" ]] && exit 0; echo \"{\\\"decision\\\": \\\"block\\\", \\\"reason\\\": \\\"Run /checkpoint to save progress before finishing.\\\"}\"'"
+          }
+        ]
+      }
+    ]
+  },
+
+  "attribution": {
+    "commits": false,
+    "pullRequests": false,
+    "issues": false
+  },
+
+  "modelOverrides": {
+    "sonnet": "claude-sonnet-4-6",
+    "opus": "claude-opus-4-6"
+  },
+
+  "spinnerTipsEnabled": false
+}
