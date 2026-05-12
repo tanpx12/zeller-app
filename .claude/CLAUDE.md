@@ -51,15 +51,15 @@ docs/                      tspec.md (technical spec), architecture.md
 
 ## Dev commands
 
-- Install:    `pnpm install`
-- Codegen:    `pnpm codegen`            (REQUIRED if backend API changed)
-- Run:        `pnpm dev`                (HMR on http://localhost:3000)
-- Typecheck:  `pnpm typecheck`
-- Test:       `pnpm test`               (watch) — `pnpm test --run` for one-shot
-- E2E:        `pnpm test:e2e`           (needs backend + paper_trade running)
-- Lint:       `pnpm lint`
-- Format:     `pnpm format`
-- Build:      `pnpm build`              (produces ./out/)
+- Install: `pnpm install`
+- Codegen: `pnpm codegen` (REQUIRED if backend API changed)
+- Run: `pnpm dev` (HMR on http://localhost:3000)
+- Typecheck: `pnpm typecheck`
+- Test: `pnpm test` (watch) — `pnpm test --run` for one-shot
+- E2E: `pnpm test:e2e` (needs backend + paper_trade running)
+- Lint: `pnpm lint`
+- Format: `pnpm format`
+- Build: `pnpm build` (produces ./out/)
 - Sync check: `pnpm codegen && git diff --exit-code src/api-client/`
 
 ## Commit convention

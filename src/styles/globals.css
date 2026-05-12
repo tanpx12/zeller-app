@@ -1,55 +1,245 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 /*
- * Theme tokens — CSS variables consumed by both Tailwind utilities and
- * chart libraries that can't read CSS vars directly (Chart.js).
- * Keep dark + light in sync; charts read raw values via getComputedStyle().
+ * next-themes is configured with attribute="data-theme"; this variant lets
+ * Tailwind's `dark:` modifier resolve against `<html data-theme="dark">`.
  */
+@custom-variant dark (&:is([data-theme='dark'] *));
 
-@theme {
-  --font-sans: 'Geist', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', monospace;
+/* ───────────────────────────────────────────────────────────────────
+ * Design tokens — Appendix A.1 of docs/tspec.md (the design contract).
+ * Variable names follow shadcn convention so the registry primitives
+ * compose without modification; values are extracted verbatim from the
+ * mockup (index.html). Never hardcode a color in any component.
+ * ─────────────────────────────────────────────────────────────────── */
+
+:root,
+[data-theme='light'] {
+  /* Surfaces and text */
+  --background: #fafaf8;
+  --surface: #ffffff;
+  --elevated: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --foreground: #0a0a0a;
+  --muted-foreground: #525250;
+  --faint-foreground: #a3a3a0;
+
+  /* Semantic palette */
+  --positive: #15803d;
+  --positive-soft: rgba(21, 128, 61, 0.1);
+  --negative: #b91c1c;
+  --negative-soft: rgba(185, 28, 28, 0.1);
+  --primary: #1e40af;
+  --primary-soft: rgba(30, 64, 175, 0.1);
+  --warning: #b45309;
+  --warning-soft: rgba(180, 83, 9, 0.1);
+
+  /* Chart gridlines */
+  --grid: rgba(0, 0, 0, 0.06);
+
+  /* shadcn primitive aliases — mapped onto the semantic palette. */
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface);
+  --popover-foreground: var(--foreground);
+  --primary-foreground: #ffffff;
+  --secondary: var(--elevated);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--elevated);
+  --accent: var(--elevated);
+  --accent-foreground: var(--foreground);
+  --destructive: var(--negative);
+  --input: var(--border);
+  --ring: var(--primary);
+
+  /* Chart series — reserved for Recharts/Chart.js multi-series legends. */
+  --chart-1: var(--primary);
+  --chart-2: var(--warning);
+  --chart-3: var(--positive);
+  --chart-4: var(--negative);
+  --chart-5: var(--muted-foreground);
+
+  --radius: 0.5rem;
+
+  /* Sidebar tokens shipped by shadcn — aliased onto our surfaces. */
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--elevated);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
-:root[data-theme='dark'] {
-  --bg: #0a0a0a;
+[data-theme='dark'] {
+  --background: #0a0a0a;
   --surface: #121212;
   --elevated: #181818;
   --border: rgba(255, 255, 255, 0.07);
   --border-strong: rgba(255, 255, 255, 0.13);
-  --text: #fafafa;
-  --text-muted: #999996;
-  --text-faint: #5a5a57;
+  --foreground: #fafafa;
+  --muted-foreground: #999996;
+  --faint-foreground: #5a5a57;
+
   --positive: #4ade80;
+  --positive-soft: rgba(74, 222, 128, 0.13);
   --negative: #f87171;
+  --negative-soft: rgba(248, 113, 113, 0.13);
+  --primary: #60a5fa;
+  --primary-soft: rgba(96, 165, 250, 0.13);
   --warning: #fbbf24;
-  --accent: #60a5fa;
+  --warning-soft: rgba(251, 191, 36, 0.13);
+
+  --grid: rgba(255, 255, 255, 0.05);
+
+  /* shadcn aliases re-resolve through the variables above. */
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: var(--surface);
+  --popover-foreground: var(--foreground);
+  --primary-foreground: #0a0a0a;
+  --secondary: var(--elevated);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--elevated);
+  --accent: var(--elevated);
+  --accent-foreground: var(--foreground);
+  --destructive: var(--negative);
+  --input: var(--border);
+  --ring: var(--primary);
+
+  --chart-1: var(--primary);
+  --chart-2: var(--warning);
+  --chart-3: var(--positive);
+  --chart-4: var(--negative);
+  --chart-5: var(--muted-foreground);
+
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--elevated);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 }
 
-:root[data-theme='light'] {
-  --bg: #fafafa;
-  --surface: #ffffff;
-  --elevated: #f4f4f4;
-  --border: rgba(0, 0, 0, 0.08);
-  --border-strong: rgba(0, 0, 0, 0.14);
-  --text: #0a0a0a;
-  --text-muted: #6b6b6b;
-  --text-faint: #a0a0a0;
-  --positive: #16a34a;
-  --negative: #dc2626;
-  --warning: #d97706;
-  --accent: #2563eb;
+/* Tailwind v4 utility mapping — names on the left become utility classes
+ * (`bg-surface`, `text-positive`, etc.). The `--font-*` defs let Tailwind's
+ * `font-sans` / `font-mono` resolve to Geist Sans / Geist Mono. */
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist-sans);
+
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint-foreground: var(--faint-foreground);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-grid: var(--grid);
+
+  --color-positive: var(--positive);
+  --color-positive-soft: var(--positive-soft);
+  --color-negative: var(--negative);
+  --color-negative-soft: var(--negative-soft);
+  --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+
+  /* shadcn aliases */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-html,
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-sans);
+/* ───────────────────────────────────────────────────────────────────
+ * Base layer — minimal, opinions only where the spec demands it.
+ * ─────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    @apply border-border;
+  }
+
+  html {
+    background: var(--background);
+    color: var(--foreground);
+    font-family:
+      var(--font-sans),
+      system-ui,
+      -apple-system,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Tabular numerals + Geist's stylistic set 1: required for P&L columns
+   * to align by decimal point and for cleaner `a`/`g` at small UI sizes. */
+  .font-mono,
+  [class*='font-mono'] {
+    font-feature-settings:
+      'tnum' 1,
+      'ss01' 1;
+  }
 }
 
-/* Numeric text uses tabular numerals + stylistic alternates so P&L columns align by decimal. */
-.font-mono,
-[class*='font-mono'] {
-  font-feature-settings: 'tnum' 1, 'ss01' 1;
+/* Breathing-glow keyframe for <LiveDot /> — the operator's at-a-glance
+ * confirmation that the WS connection is alive. Used by .live-dot.
+ * Token-driven color so dark and light themes both glow appropriately. */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 6px currentColor;
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 12px currentColor;
+    opacity: 0.65;
+  }
 }

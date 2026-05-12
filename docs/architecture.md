@@ -16,18 +16,18 @@ The deeper technical spec lives in [`tspec.md`](./tspec.md).
 
 ## Components
 
-| Name | Purpose |
-|------|---------|
-| `app/` | Next.js App Router pages — `live/`, `reports/`, `reports/[runId]/`, `compare/`, `decisions/`, plus root `layout.tsx` with theme + Query + WS providers |
-| `src/components/ui/` | shadcn-generated primitives. Copied into the repo via `pnpm dlx shadcn@latest add`; owned by the project, not pulled from npm |
+| Name                        | Purpose                                                                                                                                                                     |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/`                      | Next.js App Router pages — `live/`, `reports/`, `reports/[runId]/`, `compare/`, `decisions/`, plus root `layout.tsx` with theme + Query + WS providers                      |
+| `src/components/ui/`        | shadcn-generated primitives. Copied into the repo via `pnpm dlx shadcn@latest add`; owned by the project, not pulled from npm                                               |
 | `src/components/dashboard/` | Trading-specific composites built on shadcn primitives: `Kpi`, `Stat`, `KvRow`, `SharpeBar`, `ModeBadge`, `VerdictBadge`, `TriggerChip`, `RunPick`, `LiveDot`, `RangeChips` |
-| `src/components/sections/` | Section-level views mapping 1:1 to `PerformanceReport` sections: `HeadlineKpis`, `EquityChart`, `DrawdownChart`, `TradeTable`, `CostAttributionDonut`, etc. |
-| `src/components/charts/` | Theme-aware Recharts + Chart.js wrappers, reading colors via a `useThemeColors()` hook |
-| `src/hooks/` | TanStack Query bindings + the WebSocket subscription hook: `useReport`, `useReportList`, `useCompare`, `useLiveStatus`, `useLiveStream`, `useDecisions`, `useTriggers` |
-| `src/lib/` | Cross-cutting utilities — `client.ts` (API client config), `ws-client.ts` (WebSocket manager), `format.ts`, `time.ts`, `colors.ts`, `utils.ts` (`cn()`) |
-| `src/store/` | Zustand stores — `live` (WS connection + recent event buffer), `compare` (selected runs, mirrored from the URL) |
-| `src/api-client/` | **Generated** typed client from the backend's OpenAPI spec — never edited by hand |
-| `src/styles/` | `globals.css` with Tailwind directives, CSS variable tokens, font-face declarations |
+| `src/components/sections/`  | Section-level views mapping 1:1 to `PerformanceReport` sections: `HeadlineKpis`, `EquityChart`, `DrawdownChart`, `TradeTable`, `CostAttributionDonut`, etc.                 |
+| `src/components/charts/`    | Theme-aware Recharts + Chart.js wrappers, reading colors via a `useThemeColors()` hook                                                                                      |
+| `src/hooks/`                | TanStack Query bindings + the WebSocket subscription hook: `useReport`, `useReportList`, `useCompare`, `useLiveStatus`, `useLiveStream`, `useDecisions`, `useTriggers`      |
+| `src/lib/`                  | Cross-cutting utilities — `client.ts` (API client config), `ws-client.ts` (WebSocket manager), `format.ts`, `time.ts`, `colors.ts`, `utils.ts` (`cn()`)                     |
+| `src/store/`                | Zustand stores — `live` (WS connection + recent event buffer), `compare` (selected runs, mirrored from the URL)                                                             |
+| `src/api-client/`           | **Generated** typed client from the backend's OpenAPI spec — never edited by hand                                                                                           |
+| `src/styles/`               | `globals.css` with Tailwind directives, CSS variable tokens, font-face declarations                                                                                         |
 
 ## Data flow
 
@@ -72,28 +72,28 @@ when they disagree with the WebSocket stream — WS misses are recovered on the 
 
 ## Dependencies
 
-| Dependency | Why |
-|------------|-----|
-| `next` + `react` + `react-dom` | Framework + static export pipeline |
-| `tailwindcss` + `@tailwindcss/postcss` | Utility-first styling, CSS variable theme |
-| `next-themes` | Theme switching, persistence, SSR-safe |
-| `@tanstack/react-query` | Server-state cache, retries, stale-while-revalidate |
-| `zustand` | Minimal client state (WS connection + cross-route runtime data) |
-| `recharts` | Line / area charts (equity, drawdown, IC over time) |
-| `chart.js` + `react-chartjs-2` | Bar, donut, histogram (where Recharts is weak) |
-| `sonner` | Toast notifications for WS connection state |
-| `date-fns` + `date-fns-tz` | UTC-first time formatting |
-| `lucide-react` | Icon set used by shadcn |
-| `openapi-typescript-codegen` | Generates `src/api-client/` from `openapi.json` |
-| `vitest` + `@testing-library/react` | Unit + component tests |
-| `@playwright/test` | End-to-end tests including WebSocket reconnect scenarios |
+| Dependency                             | Why                                                             |
+| -------------------------------------- | --------------------------------------------------------------- |
+| `next` + `react` + `react-dom`         | Framework + static export pipeline                              |
+| `tailwindcss` + `@tailwindcss/postcss` | Utility-first styling, CSS variable theme                       |
+| `next-themes`                          | Theme switching, persistence, SSR-safe                          |
+| `@tanstack/react-query`                | Server-state cache, retries, stale-while-revalidate             |
+| `zustand`                              | Minimal client state (WS connection + cross-route runtime data) |
+| `recharts`                             | Line / area charts (equity, drawdown, IC over time)             |
+| `chart.js` + `react-chartjs-2`         | Bar, donut, histogram (where Recharts is weak)                  |
+| `sonner`                               | Toast notifications for WS connection state                     |
+| `date-fns` + `date-fns-tz`             | UTC-first time formatting                                       |
+| `lucide-react`                         | Icon set used by shadcn                                         |
+| `openapi-typescript-codegen`           | Generates `src/api-client/` from `openapi.json`                 |
+| `vitest` + `@testing-library/react`    | Unit + component tests                                          |
+| `@playwright/test`                     | End-to-end tests including WebSocket reconnect scenarios        |
 
 ## External integrations
 
-| Service | Purpose |
-|---------|---------|
-| perps_model HTTP API | All data — reports, live state, decisions, comparisons. Base URL via `NEXT_PUBLIC_API_BASE` |
-| perps_model WebSocket | `WS /api/v1/live/stream` — push-based live updates. Base URL via `NEXT_PUBLIC_WS_BASE` |
+| Service               | Purpose                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------- |
+| perps_model HTTP API  | All data — reports, live state, decisions, comparisons. Base URL via `NEXT_PUBLIC_API_BASE` |
+| perps_model WebSocket | `WS /api/v1/live/stream` — push-based live updates. Base URL via `NEXT_PUBLIC_WS_BASE`      |
 
 The dashboard talks to nothing else. No Hyperliquid calls, no third-party auth, no
 remote analytics. The only runtime network egress is the one configured base URL.

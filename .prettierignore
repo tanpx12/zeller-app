@@ -6,3 +6,15 @@ pnpm-lock.yaml
 coverage
 playwright-report
 test-results
+
+# Reference files — keep authoring formatting intact
+README.md
+CHANGELOG.md
+index.html
+docs/tspec.md
+docs/implplan.md
+.claude/skills/
+
+# Tool output
+*.min.js
+*.min.css

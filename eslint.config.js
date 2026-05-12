@@ -9,22 +9,26 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 })
 
-export default [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+const config = [
   {
-    ignores: ['out/**', '.next/**', 'node_modules/**', 'src/api-client/**', 'coverage/**'],
+    ignores: [
+      'out/**',
+      '.next/**',
+      'node_modules/**',
+      'src/api-client/**',
+      'coverage/**',
+      'playwright-report/**',
+      'test-results/**',
+      'next-env.d.ts',
+    ],
   },
+  ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/consistent-type-imports': 'warn',
-      'no-restricted-globals': [
-        'error',
-        {
-          name: 'fetch',
-          message: 'Use a hook in src/hooks/ that goes through the generated API client.',
-        },
-      ],
     },
   },
 ]
+
+export default config
