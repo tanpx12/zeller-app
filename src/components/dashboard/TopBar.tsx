@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { LiveIndicator } from './LiveIndicator'
 import { ThemeToggle } from './ThemeToggle'
+import { useLiveStatus } from '@/hooks/useLiveStatus'
+import { formatUtc } from '@/lib/time'
 
 const tabs = [
   { href: '/live', label: 'Live' },
@@ -15,6 +17,13 @@ const tabs = [
 
 export function TopBar() {
   const pathname = usePathname()
+  const live = useLiveStatus()
+  const liveLabel =
+    live.status === 'down'
+      ? 'Live runner offline'
+      : live.data
+        ? `BTC · last bar ${formatUtc(live.data.timestamp).slice(11, 16)} UTC`
+        : 'Connecting…'
 
   return (
     <header
@@ -52,7 +61,7 @@ export function TopBar() {
       </nav>
 
       <div className="ml-auto flex items-center gap-4">
-        <LiveIndicator status="healthy" label="BTC · 1h · last bar 12:00 UTC" />
+        <LiveIndicator status={live.status} label={liveLabel} />
         <ThemeToggle />
       </div>
     </header>
