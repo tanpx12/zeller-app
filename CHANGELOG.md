@@ -74,6 +74,27 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Compare page:** `/compare?a=X&b=Y` composes everything end-to-end. 409 →
   clean "no overlap" empty state; 404 → "run not found"; missing slot → "Pick
   two runs". Every section wrapped in `ErrorBoundary`.
+- **Phase 5.1 — `useDecisions` + filter pills:** typed list hook + verdict-
+  filter pills using `DecisionFacetsDto.by_verdict`. Backend variant labels
+  ("NoRetrainNeeded" / "Monitor" / "Recommend") rolled into our four
+  `VerdictKind`s, with the `Retrain` pill covering both `Recommend` and
+  `StronglyRecommend`.
+- **Phase 5.2 — `DecisionCard` + `DecisionRow`:** card head matches mockup
+  grid `110px 1fr auto` (date · verdict sentence · `VerdictBadge`). Body
+  grid 1fr/1fr with trigger list (`TriggerChip` with outcome decoded from
+  the `NoFire`/`SoftFire`/`HardFire` tagged union) + 2x2 decision stats
+  comparing live vs holdout IC/Sharpe/hit rate with relative-delta tone
+  coloring. Compact `DecisionRow` for the list page.
+- **Phase 5.3 — Decision detail route:** `/decisions/[date]/` with
+  `generateStaticParams` enumerating the current decisions list at build
+  time. Falls back to a `_placeholder` shell when the list is empty (Next
+  requires ≥1 prerendered path under `output: 'export'`). Body shows the
+  full `DecisionCard` + window/generation timestamps + feature-drift KV
+  table (PSI per feature, color-coded ≥0.1 amber / ≥0.25 red) +
+  recommended-next-steps list.
+- **Helpers:** `src/lib/verdict.ts` and `src/lib/trigger.ts` decode the
+  tagged-union DTOs into stable identifiers + display strings the
+  components can render without re-implementing the union logic.
 
 ### Notes
 
