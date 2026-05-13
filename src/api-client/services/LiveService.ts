@@ -2,8 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { LiveFillsDto } from '../models/LiveFillsDto';
 import type { LiveReconciliationDto } from '../models/LiveReconciliationDto';
 import type { LiveRiskEventsDto } from '../models/LiveRiskEventsDto';
+import type { LiveStatusDto } from '../models/LiveStatusDto';
+import type { TimeSeriesEnvelope } from '../models/TimeSeriesEnvelope';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -15,7 +18,7 @@ export class LiveService {
      * rather than `report.raw.equity`; downsampling is intentionally not
      * supported here because live snapshot frequency = bar frequency, and
      * the dashboard typically wants the verbatim sequence.
-     * @returns any Live equity time series envelope
+     * @returns TimeSeriesEnvelope Live equity time series envelope
      * @throws ApiError
      */
     public static getEquity({
@@ -25,7 +28,7 @@ export class LiveService {
          * Inclusive lower bound on snapshot timestamp (unix ms)
          */
         since?: number,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<TimeSeriesEnvelope> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/live/equity',
@@ -39,7 +42,7 @@ export class LiveService {
     }
     /**
      * `GET /api/v1/live/fills?since=<unix_ms>` — live fills since timestamp.
-     * @returns any Live fills envelope
+     * @returns LiveFillsDto Live fills envelope
      * @throws ApiError
      */
     public static getFills({
@@ -49,7 +52,7 @@ export class LiveService {
          * Inclusive lower bound on fill timestamp (unix ms)
          */
         since?: number,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<LiveFillsDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/live/fills',
@@ -123,10 +126,10 @@ export class LiveService {
     }
     /**
      * `GET /api/v1/live/status` — current equity, position, last forecast.
-     * @returns any Live status snapshot
+     * @returns LiveStatusDto Live status snapshot
      * @throws ApiError
      */
-    public static getStatus(): CancelablePromise<any> {
+    public static getStatus(): CancelablePromise<LiveStatusDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/live/status',

@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { DecisionListResponse } from '../models/DecisionListResponse';
+import type { DecisionReport } from '../models/DecisionReport';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -9,10 +11,10 @@ export class DecisionsService {
     /**
      * `GET /api/v1/decisions` — every persisted decision report,
      * newest-first.
-     * @returns any Decision report summaries
+     * @returns DecisionListResponse Decision report summaries
      * @throws ApiError
      */
-    public static listDecisions(): CancelablePromise<any> {
+    public static listDecisions(): CancelablePromise<DecisionListResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/decisions',
@@ -24,7 +26,7 @@ export class DecisionsService {
     /**
      * `GET /api/v1/decisions/:date` — full `DecisionReport` JSON. `date`
      * must be `YYYY-MM-DD` (UTC); other formats yield 400.
-     * @returns any Full DecisionReport
+     * @returns DecisionReport Full DecisionReport
      * @throws ApiError
      */
     public static getDecision({
@@ -34,7 +36,7 @@ export class DecisionsService {
          * YYYY-MM-DD
          */
         date: string,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<DecisionReport> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/decisions/{date}',

@@ -2,12 +2,23 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AttributionDto } from '../models/AttributionDto';
+import type { DrawdownDto } from '../models/DrawdownDto';
+import type { ForecastDto } from '../models/ForecastDto';
+import type { HeadlineSection } from '../models/HeadlineSection';
+import type { ListReportsResponse } from '../models/ListReportsResponse';
+import type { PerformanceReport } from '../models/PerformanceReport';
+import type { ReportSearchResponse } from '../models/ReportSearchResponse';
+import type { RiskEventsDto } from '../models/RiskEventsDto';
+import type { TimeAnalysisSection } from '../models/TimeAnalysisSection';
+import type { TimeSeriesEnvelope } from '../models/TimeSeriesEnvelope';
+import type { TradesPageDto } from '../models/TradesPageDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class ReportsService {
     /**
-     * @returns any Paginated list of indexed reports
+     * @returns ListReportsResponse Paginated list of indexed reports
      * @throws ApiError
      */
     public static listReports({
@@ -52,7 +63,7 @@ export class ReportsService {
          * Opaque cursor from a prior response
          */
         cursor?: string,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<ListReportsResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/reports',
@@ -73,7 +84,7 @@ export class ReportsService {
         });
     }
     /**
-     * @returns any Lightweight hits with server-composed label
+     * @returns ReportSearchResponse Lightweight hits with server-composed label
      * @throws ApiError
      */
     public static searchReports({
@@ -93,7 +104,7 @@ export class ReportsService {
          * 1-50, default 10
          */
         limit?: number,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<ReportSearchResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/reports/search',
@@ -110,7 +121,7 @@ export class ReportsService {
     }
     /**
      * `GET /api/v1/reports/:run_id` — full canonical PerformanceReport JSON.
-     * @returns any Canonical PerformanceReport
+     * @returns PerformanceReport Canonical PerformanceReport
      * @throws ApiError
      */
     public static getReport({
@@ -120,7 +131,7 @@ export class ReportsService {
          * Stable run identifier
          */
         runId: string,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<PerformanceReport> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/reports/{run_id}',
@@ -136,7 +147,7 @@ export class ReportsService {
     }
     /**
      * `GET /api/v1/reports/:run_id/attribution` — PnL decomposition + counterfactuals.
-     * @returns any Attribution section
+     * @returns AttributionDto Attribution section
      * @throws ApiError
      */
     public static getAttribution({
@@ -146,7 +157,7 @@ export class ReportsService {
          * Stable run identifier
          */
         runId: string,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<AttributionDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/reports/{run_id}/attribution',
@@ -162,7 +173,7 @@ export class ReportsService {
     }
     /**
      * `GET /api/v1/reports/:run_id/drawdown` — drawdown / underwater series + summary.
-     * @returns any Drawdown projection
+     * @returns DrawdownDto Drawdown projection
      * @throws ApiError
      */
     public static getDrawdown({
@@ -172,7 +183,7 @@ export class ReportsService {
          * Stable run identifier
          */
         runId: string,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<DrawdownDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/reports/{run_id}/drawdown',
@@ -193,7 +204,7 @@ export class ReportsService {
      * dashboard can pull it from `headline.initial_equity` if it cares about
      * the t=0 anchor). Filtering applies before downsampling so the bucket
      * boundaries are computed against the visible window.
-     * @returns any Equity time series envelope
+     * @returns TimeSeriesEnvelope Equity time series envelope
      * @throws ApiError
      */
     public static getEquity({
@@ -218,7 +229,7 @@ export class ReportsService {
          * Inclusive upper bound on bar timestamp (unix ms)
          */
         until?: number,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<TimeSeriesEnvelope> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/reports/{run_id}/equity',
@@ -240,7 +251,7 @@ export class ReportsService {
     }
     /**
      * `GET /api/v1/reports/:run_id/forecast` — model-quality view (IC / calibration).
-     * @returns any Forecast section
+     * @returns ForecastDto Forecast section
      * @throws ApiError
      */
     public static getForecast({
@@ -250,7 +261,7 @@ export class ReportsService {
          * Stable run identifier
          */
         runId: string,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<ForecastDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/reports/{run_id}/forecast',
@@ -266,7 +277,7 @@ export class ReportsService {
     }
     /**
      * `GET /api/v1/reports/:run_id/headline` — at-a-glance summary only.
-     * @returns any Headline section
+     * @returns HeadlineSection Headline section
      * @throws ApiError
      */
     public static getHeadline({
@@ -276,7 +287,7 @@ export class ReportsService {
          * Stable run identifier
          */
         runId: string,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<HeadlineSection> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/reports/{run_id}/headline',
@@ -292,7 +303,7 @@ export class ReportsService {
     }
     /**
      * `GET /api/v1/reports/:run_id/risk_events` — every `RiskGuard` intervention.
-     * @returns any Risk-event list
+     * @returns RiskEventsDto Risk-event list
      * @throws ApiError
      */
     public static getRiskEvents({
@@ -302,7 +313,7 @@ export class ReportsService {
          * Stable run identifier
          */
         runId: string,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<RiskEventsDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/reports/{run_id}/risk_events',
@@ -318,7 +329,7 @@ export class ReportsService {
     }
     /**
      * `GET /api/v1/reports/:run_id/time_analysis` — hour-of-day / day-of-week patterns.
-     * @returns any Time-of-day / day-of-week analysis section
+     * @returns TimeAnalysisSection Time-of-day / day-of-week analysis section
      * @throws ApiError
      */
     public static getTimeAnalysis({
@@ -328,7 +339,7 @@ export class ReportsService {
          * Stable run identifier
          */
         runId: string,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<TimeAnalysisSection> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/reports/{run_id}/time_analysis',
@@ -353,7 +364,7 @@ export class ReportsService {
      * this endpoint does *not* emit ETag / Cache-Control: a paginated
      * response varies by `?cursor=` and would need a per-page ETag to be
      * cacheable correctly. Match the precedent set by `list_reports`.
-     * @returns any Paginated trade list
+     * @returns TradesPageDto Paginated trade list
      * @throws ApiError
      */
     public static getTrades({
@@ -373,7 +384,7 @@ export class ReportsService {
          * Opaque cursor from a prior response
          */
         cursor?: string,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<TradesPageDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/reports/{run_id}/trades',

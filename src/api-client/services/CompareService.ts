@@ -2,12 +2,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { CompareResponseDto } from '../models/CompareResponseDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class CompareService {
     /**
-     * @returns any ComparisonReport JSON
+     * @returns CompareResponseDto ComparisonReport JSON
      * @throws ApiError
      */
     public static compareHandler({
@@ -22,7 +23,7 @@ export class CompareService {
          * Candidate run_id
          */
         b: string,
-    }): CancelablePromise<any> {
+    }): CancelablePromise<CompareResponseDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/compare',
