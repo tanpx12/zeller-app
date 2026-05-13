@@ -55,10 +55,31 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Detail page composition:** every section wrapped in an `ErrorBoundary` so a 404
   on `/reports/{id}/trades` fails only that section, not the page.
 
+- **Phase 4.1 — `useCompare` + `useReportSearch`:** typed query hooks bound to
+  `CompareService.compareHandler` and `ReportsService.searchReports`. Non-retried
+  errors on 404 / 409 / 400 so deterministic failures surface immediately.
+- **Phase 4.2 — `RunPicker`:** combobox using shadcn `Popover` + `Command` with
+  live typeahead, A/B accent left border (primary / warning). Selected `run_id`
+  syncs to `?a=&b=` in the URL so comparison links are shareable.
+- **Phase 4.3 — `CompareGrid`:** 3-col `1fr 88px 1fr` headline-diff grid, A right-
+  aligned with right border, label centered (`%` delta below), B left-aligned with
+  left border. Per-metric formatter dispatches money / percent / decimals.
+- **Phase 4.4 — Overlay charts:** `EquityOverlay` (BaseLineChart two series),
+  `DrawdownOverlay` (two filled Areas, semi-transparent), `ReturnDistribution`
+  (grouped bars from `return_distribution_overlay`).
+- **Phase 4.5 — `CompareVerdictBanner` + `StatisticalEvidence`:** decodes the
+  `ComparisonVerdict` tagged union (`BImproves` / `BWorse` / `Inconclusive`) into
+  promote / reject / inconclusive tones. Evidence card surfaces DM stat + p-value,
+  period overlap, config / model hash agreement.
+- **Compare page:** `/compare?a=X&b=Y` composes everything end-to-end. 409 →
+  clean "no overlap" empty state; 404 → "run not found"; missing slot → "Pick
+  two runs". Every section wrapped in `ErrorBoundary`.
+
 ### Notes
 
-- `/reports/[runId]` first-load JS is 265 KB (Recharts dominates) — 15 KB over the
-  Phase-7 250 KB budget. Deferred to Phase 7.5 (dynamic-import the chart wrappers).
+- `/reports/[runId]` first-load JS is 268 KB and `/compare` is 278 KB (both
+  Recharts-bound) — over the 250 KB Phase-7 budget. Deferred to Phase 7.5
+  (dynamic-import the chart wrappers).
 - `generateStaticParams` requires the backend reachable at `NEXT_PUBLIC_API_BASE`
   during `pnpm build`. Falls back to an empty list (only the `/reports` index works)
   if unreachable. New runs added after a build aren't navigable until the next build.
