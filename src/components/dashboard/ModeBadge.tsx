@@ -1,13 +1,16 @@
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
-export type Mode = 'batch' | 'holdout' | 'live' | 'decision'
+export type Mode = 'batch' | 'holdout' | 'live' | 'decision' | 'backtest'
 
 const modeClass: Record<Mode, string> = {
   batch: 'bg-primary-soft text-primary',
   holdout: 'bg-warning-soft text-warning',
   live: 'bg-positive-soft text-positive',
   decision: 'bg-primary-soft text-primary',
+  // Collapsed model-level mode (returned by /models endpoints). Same blue
+  // family as `batch` since backtest = batch + holdout combined.
+  backtest: 'bg-primary-soft text-primary',
 }
 
 export interface ModeBadgeProps {

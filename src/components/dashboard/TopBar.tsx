@@ -11,6 +11,7 @@ import { formatUtc } from '@/lib/time'
 const tabs = [
   { href: '/live', label: 'Live' },
   { href: '/reports', label: 'Reports' },
+  { href: '/models', label: 'Models' },
   { href: '/compare', label: 'Compare' },
   { href: '/decisions', label: 'Decisions' },
 ] as const

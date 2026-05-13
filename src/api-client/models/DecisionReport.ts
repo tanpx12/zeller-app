@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { PerformanceSummary } from './PerformanceSummary';
+import type { TargetMode } from './TargetMode';
 import type { TriggerEntry } from './TriggerEntry';
 import type { Verdict } from './Verdict';
 /**
@@ -36,6 +37,7 @@ export type DecisionReport = {
      * `RetrainEvaluator` based on which triggers fired.
      */
     recommended_next_steps: Array<string>;
+    target_mode?: (null | TargetMode);
     /**
      * Every trigger's outcome (including no-fires) for full audit.
      */

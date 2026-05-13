@@ -2,7 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { RunMode } from './RunMode';
+import type { Lineage } from './Lineage';
+import type { WireMode } from './WireMode';
 /**
  * Identity of "what produced this report" — a [`config_hash`,
  * `model_hash`, `git_sha`] triple plus the run period.
@@ -30,6 +31,22 @@ export type RunMetadata = {
      */
     config_hash: Array<number>;
     /**
+     * Self-describing snapshot of the `BacktestConfig` that produced
+     * this run. Captured at write time by `train` / `backtest` /
+     * `paper_trade` so dashboards can render the real parameter values
+     * (sizer kind, leverage cap, stop-loss pct, fee tier, …) instead of
+     * just the opaque `config_hash`.
+     *
+     * Stored as `serde_json::Value` rather than a typed
+     * `BacktestConfig` so the schema can evolve without touching every
+     * historical archive: tomorrow's binary can add fields, today's
+     * reader still parses old reports as long as they're valid JSON.
+     *
+     * `None` for historical reports written before this field landed.
+     * Defaults to `None` on deserialise so older archives parse cleanly.
+     */
+    config_snapshot?: any;
+    /**
      * Wall-clock time the report was generated.
      */
     generated_at: string;
@@ -41,10 +58,17 @@ export type RunMetadata = {
      * Bar interval (e.g. `"1h"`).
      */
     interval: string;
+    lineage?: (null | Lineage);
     /**
-     * Run mode (batch / holdout / live / reconciliation).
+     * Run mode. The internal Rust enum has four variants (`Batch`,
+     * `Holdout`, `Live`, `Reconciliation`), but the API surface
+     * emits the three-mode lifecycle vocabulary
+     * (`backtest`/`paper_trade`/`reconciliation`) via
+     * [`crate::api::wire_mode::WireMode`]. Persisted archives keep
+     * the PascalCase Rust serialization; the API rewrites it on
+     * the way out.
      */
-    mode: RunMode;
+    mode: WireMode;
     /**
      * Hash of the model artifact (LightGBM booster bytes, weights, …).
      */

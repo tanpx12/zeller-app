@@ -14,11 +14,13 @@ import { EquityCard } from '@/components/sections/EquityCard'
 import { HourOfDayChart } from '@/components/sections/HourOfDayChart'
 import { CostAttributionDonut } from '@/components/sections/CostAttributionDonut'
 import { ForecastDiagnostics } from '@/components/sections/ForecastDiagnostics'
+import { ConfigSnapshotCard } from '@/components/sections/ConfigSnapshotCard'
 import {
   useReportAttribution,
   useReportDrawdown,
   useReportEquity,
   useReportForecast,
+  useReportFull,
   useReportHeadline,
   useReportRiskEvents,
   useReportTimeAnalysis,
@@ -49,6 +51,7 @@ export function ReportDetailBody({ runId }: { runId: string }) {
   const timeAnalysis = useReportTimeAnalysis(runId)
   const attribution = useReportAttribution(runId)
   const forecast = useReportForecast(runId)
+  const full = useReportFull(runId)
 
   if (headline.error instanceof ApiError && headline.error.status === 404) {
     notFound()
@@ -133,6 +136,10 @@ export function ReportDetailBody({ runId }: { runId: string }) {
           </section>
         </ErrorBoundary>
       </div>
+
+      <ErrorBoundary label="Config snapshot">
+        <ConfigSnapshotCard data={full.data?.meta.config_snapshot} loading={full.isLoading} />
+      </ErrorBoundary>
     </div>
   )
 }

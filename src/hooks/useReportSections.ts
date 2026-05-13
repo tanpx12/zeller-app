@@ -7,6 +7,7 @@ import {
   type DrawdownDto,
   type ForecastDto,
   type HeadlineSection,
+  type PerformanceReport,
   type RiskEventsDto,
   type TimeAnalysisSection,
   type TimeSeriesEnvelope,
@@ -20,6 +21,20 @@ import '@/lib/client'
  * what the spec specifies.
  */
 const SECTION_STALE_TIME = 60 * 60 * 1000
+
+/**
+ * Full canonical `PerformanceReport`. Use sparingly — the per-section
+ * hooks below are cheaper. Needed only when surfacing `meta.config_snapshot`
+ * or `meta.lineage`, which aren't exposed by any section endpoint.
+ */
+export function useReportFull(runId: string | undefined) {
+  return useQuery<PerformanceReport>({
+    queryKey: ['reports', runId, 'full'],
+    queryFn: () => ReportsService.getReport({ runId: runId! }),
+    enabled: !!runId,
+    staleTime: 60 * 60 * 1000,
+  })
+}
 
 export function useReportHeadline(runId: string | undefined) {
   return useQuery<HeadlineSection>({

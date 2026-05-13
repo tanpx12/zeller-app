@@ -8,6 +8,36 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Models tab** — new `/models` surface against the backend's `/api/v1/models`
+  + `/api/v1/models/{name}/trades` endpoints. Strategy catalog with three seeded
+  entries (`euler`, `scaled_family`, `fixed_family`) maps human-readable names to
+  config templates that match across runs.
+  - `src/hooks/useModels.ts` — `useModels()` (catalog) + `useModelTrades(name)`
+    (cursor-paginated infinite query)
+  - `app/models/page.tsx` — index of clickable `ModelCard`s with description,
+    n_runs, mode pills (collapsed `backtest` label from the backend)
+  - `app/models/[name]/page.tsx` — static-export shell with
+    `generateStaticParams` over the live catalog. Detail body:
+    `PageHeader` with mode mix + latest run date, `ModelTradesFilters`
+    (URL-synced mode/sizer/leverage/sl), `ModelTradesSummary` (client-side
+    aggregation over loaded pages), `ModelTradesTable` with grid columns
+    matching the mockup convention (`Entry · Side · Mode · P&L% · P&L$ ·
+    Bars · Run ID · Exit`) and per-row navigation to `/reports/[runId]`.
+  - 5th tab in `TopBar`: `Live · Reports · Models · Compare · Decisions`.
+- **`ConfigSnapshotCard` on `/reports/[runId]`** — surfaces the new
+  `RunMetadata.config_snapshot` blob (free-form JSON, typed `any` from the
+  wire) as a collapsible KV tree. Top-level keys expanded by default; nested
+  objects (e.g. `lgbm` hyperparameters) collapsed so the card stays compact.
+  Uses `useReportFull` (new hook in `useReportSections.ts`) since
+  `config_snapshot` isn't surfaced by any per-section endpoint.
+- **`Mode` taxonomy extension** — `ModeBadge`'s `Mode` type adds
+  `'backtest'` (collapsed batch+holdout label from `/models` endpoints).
+  `toMode()` documents the three vocabularies it accepts (single-run lowercase,
+  PascalCase RunMode, collapsed model-level). Same `--primary-soft` color as
+  `batch` since they're semantically related.
+
+### Added
+
 - **Phase 1 — Scaffold:** Next.js 15 (App Router, static export), TypeScript strict,
   Tailwind CSS 4, shadcn/ui with Nova preset (Lucide + Geist), 22 shadcn primitives
   installed, TanStack Query + Zustand + next-themes wired, Vitest + Playwright config.
