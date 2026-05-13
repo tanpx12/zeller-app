@@ -27,7 +27,7 @@ export function VerdictBadge({ code, className }: VerdictBadgeProps) {
       data-slot="verdict-badge"
       data-verdict={code}
       className={cn(
-        'rounded-[4px] border-transparent px-2 text-[11px] font-medium uppercase tracking-[0.06em]',
+        'rounded-[4px] border-transparent px-2.5 py-1 font-sans text-[11px] font-medium uppercase tracking-[0.04em]',
         verdictClass[code],
         className,
       )}

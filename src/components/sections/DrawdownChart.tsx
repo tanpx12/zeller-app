@@ -10,6 +10,11 @@ import { formatUtc } from '@/lib/time'
 export interface DrawdownChartProps {
   data?: DrawdownDto
   loading?: boolean
+  /** Chart height in px. Default 200; use ~80 for the sparkline-style version
+   * shown inline under the equity chart (matches mockup `.chart-h-80`). */
+  height?: number
+  /** Strip the outer card chrome — meant for use inside another card. */
+  bare?: boolean
 }
 
 interface DrawdownPoint extends Record<string, unknown> {
@@ -17,7 +22,7 @@ interface DrawdownPoint extends Record<string, unknown> {
   dd: number
 }
 
-export function DrawdownChart({ data, loading }: DrawdownChartProps) {
+export function DrawdownChart({ data, loading, height = 200, bare = false }: DrawdownChartProps) {
   const points = useMemo<DrawdownPoint[]>(() => {
     if (!data?.drawdown_curve) return []
     const { timestamps, values } = data.drawdown_curve
@@ -30,7 +35,9 @@ export function DrawdownChart({ data, loading }: DrawdownChartProps) {
     return out
   }, [data])
 
-  if (loading) return <Skeleton className="h-[200px] w-full rounded-lg" />
+  if (loading) {
+    return <Skeleton className="w-full rounded-lg" style={{ height }} />
+  }
 
   if (points.length === 0) {
     return (
@@ -40,19 +47,21 @@ export function DrawdownChart({ data, loading }: DrawdownChartProps) {
     )
   }
 
-  return (
-    <div className="rounded-lg border border-border bg-surface p-3">
-      <BaseAreaChart
-        data={points}
-        xKey="t"
-        dataKey="dd"
-        color="--negative"
-        yFormatter={(v) => percent(v)}
-        xFormatter={(v) => formatUtc(v).slice(0, 10)}
-        height={200}
-        yDomain={['dataMin', 0]}
-        referenceY={0}
-      />
-    </div>
+  const chart = (
+    <BaseAreaChart
+      data={points}
+      xKey="t"
+      dataKey="dd"
+      color="--negative"
+      yFormatter={(v) => percent(v)}
+      xFormatter={(v) => formatUtc(v).slice(0, 10)}
+      height={height}
+      yDomain={['dataMin', 0]}
+      referenceY={0}
+    />
   )
+
+  if (bare) return chart
+
+  return <div className="rounded-lg border border-border bg-surface p-3">{chart}</div>
 }

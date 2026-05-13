@@ -38,7 +38,7 @@ function ReportsBody() {
         }
       />
 
-      <ReportFilters facets={facets} />
+      <ReportFilters facets={facets} totalCount={totalEstimate} />
 
       <ErrorBoundary label="Reports list">
         {error ? (

@@ -22,7 +22,7 @@ export function TriggerChip({ outcome, label, className }: TriggerChipProps) {
       data-slot="trigger-chip"
       data-outcome={outcome}
       className={cn(
-        'rounded-[4px] px-2 text-[11px] font-medium font-mono tracking-tight',
+        'rounded-[4px] px-2 py-[3px] font-mono text-[11px]',
         outcomeClass[outcome],
         className,
       )}

@@ -2,7 +2,6 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback } from 'react'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
   DropdownMenu,
@@ -10,23 +9,28 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { ReportFacetsDto } from '@/api-client'
 
 export interface ReportFiltersProps {
   facets?: ReportFacetsDto
+  totalCount?: number
 }
 
 const modeOptions: { value: string; label: string }[] = [
-  { value: '', label: 'All modes' },
+  { value: '', label: 'All' },
   { value: 'batch', label: 'Batch' },
   { value: 'holdout', label: 'Holdout' },
   { value: 'live', label: 'Live' },
-  { value: 'reconciliation', label: 'Reconciliation' },
+  { value: 'reconciliation', label: 'Decision' },
 ]
 
-export function ReportFilters({ facets }: ReportFiltersProps) {
+/**
+ * Matches the mockup's `.filter-bar` (index.html:175-191, 498-509). Pills are
+ * 12px sans, no uppercase. Counts render as `.count` (text-faint-foreground)
+ * inline after the label. Asset/Sharpe live to the right of a `.spacer`.
+ */
+export function ReportFilters({ facets, totalCount }: ReportFiltersProps) {
   const router = useRouter()
   const params = useSearchParams()
 
@@ -51,50 +55,41 @@ export function ReportFilters({ facets }: ReportFiltersProps) {
   const assetCounts = facets?.by_asset ?? {}
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {/* Mode pills */}
+    <div className="flex flex-wrap items-center gap-2.5">
+      <input
+        type="search"
+        placeholder="Search by run_id, period, config hash..."
+        className="min-w-[240px] rounded-md border border-border bg-surface px-3 py-1.5 text-[13px] text-foreground placeholder:text-faint-foreground focus:border-border-strong focus:outline-none"
+        // Search is wired to filter state only when the API supports it; for
+        // now it's a non-functional placeholder matching the mockup affordance.
+        disabled
+      />
+
       {modeOptions.map((opt) => {
         const active = mode === opt.value
-        const count = opt.value ? modeCounts[opt.value] : undefined
+        const count = opt.value === '' ? totalCount : modeCounts[opt.value]
         return (
-          <button
+          <FilterPill
             key={opt.value || 'all'}
-            type="button"
-            data-active={active ? '' : undefined}
+            active={active}
+            count={count}
             onClick={() => update({ mode: opt.value || null })}
-            className={cn(
-              'inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground transition-colors',
-              'hover:text-foreground',
-              'data-[active]:bg-elevated data-[active]:text-foreground data-[active]:border-border-strong',
-            )}
           >
-            <span>{opt.label}</span>
-            {count != null && (
-              <Badge
-                variant="outline"
-                className="h-4 rounded-sm border-transparent bg-elevated px-1.5 text-[10px] font-mono text-faint-foreground"
-              >
-                {count}
-              </Badge>
-            )}
-          </button>
+            {opt.label}
+          </FilterPill>
         )
       })}
 
-      <span className="mx-1 h-4 w-px bg-border" aria-hidden />
+      <span className="flex-1" aria-hidden />
 
-      {/* Asset picker */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 rounded-md border border-border bg-surface px-2.5 text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground hover:text-foreground"
-          >
-            {asset || 'All assets'}
-          </Button>
+          <button type="button" className={filterPillClass(!!asset)}>
+            <span>Asset: {asset || 'All'}</span>
+            <span className="text-faint-foreground">▾</span>
+          </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="min-w-[140px]">
+        <DropdownMenuContent align="end" className="min-w-[140px]">
           <DropdownMenuItem onSelect={() => update({ asset: null })}>All assets</DropdownMenuItem>
           {Object.keys(assetCounts).map((a) => (
             <DropdownMenuItem key={a} onSelect={() => update({ asset: a })}>
@@ -105,33 +100,61 @@ export function ReportFilters({ facets }: ReportFiltersProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Min Sharpe */}
-      <div className="inline-flex items-center gap-1.5">
-        <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
-          Min Sharpe
-        </span>
+      <label className={cn(filterPillClass(!!minSharpe), 'gap-2 pr-2')}>
+        <span>Min Sharpe:</span>
         <Input
           type="number"
           step="0.1"
           inputMode="decimal"
           value={minSharpe}
           onChange={(e) => update({ min_sharpe: e.target.value || null })}
-          className="h-7 w-[80px] rounded-md border-border bg-surface px-2 text-xs font-mono"
+          className="h-5 w-[58px] border-0 bg-transparent p-0 text-[12px] font-mono text-foreground shadow-none focus-visible:ring-0"
           placeholder="—"
         />
-      </div>
+      </label>
 
-      {/* Reset */}
       {(mode || asset || minSharpe) && (
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
+          type="button"
           onClick={() => router.replace('?', { scroll: false })}
-          className="h-7 text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground hover:text-foreground"
+          className="text-[12px] text-muted-foreground transition-colors hover:text-foreground"
         >
           Reset
-        </Button>
+        </button>
       )}
     </div>
+  )
+}
+
+function FilterPill({
+  active,
+  count,
+  onClick,
+  children,
+}: {
+  active: boolean
+  count?: number
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      data-active={active ? '' : undefined}
+      onClick={onClick}
+      className={filterPillClass(active)}
+    >
+      <span>{children}</span>
+      {count != null && <span className="text-faint-foreground">{count}</span>}
+    </button>
+  )
+}
+
+function filterPillClass(active: boolean) {
+  return cn(
+    'inline-flex items-center gap-1.5 rounded-md border bg-surface px-3 py-1.5 text-[12px] transition-colors',
+    active
+      ? 'border-border-strong bg-elevated text-foreground'
+      : 'border-border text-muted-foreground hover:text-foreground',
   )
 }

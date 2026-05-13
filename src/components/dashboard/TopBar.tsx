@@ -19,19 +19,19 @@ export function TopBar() {
   return (
     <header
       data-slot="top-bar"
-      className="sticky top-0 z-30 flex h-[52px] items-center gap-6 border-b border-border bg-background/85 px-4 backdrop-blur"
+      className="sticky top-0 z-50 flex h-[52px] items-center gap-8 border-b border-border bg-background px-6"
     >
       <Link
         href="/"
-        className="flex items-center gap-2 text-[13px] font-medium tracking-[-0.02em] text-foreground"
+        className="flex h-full items-center gap-1 font-mono text-[13px] font-medium tracking-[-0.02em] text-foreground"
       >
-        <span className="text-primary" aria-hidden>
+        <span className="text-positive" aria-hidden>
           ◐
         </span>
         <span>perps_model</span>
       </Link>
 
-      <nav className="flex items-center gap-1" aria-label="Main">
+      <nav className="flex h-full items-stretch gap-0.5" aria-label="Main">
         {tabs.map((tab) => {
           const active = pathname?.startsWith(tab.href) ?? false
           return (
@@ -40,9 +40,9 @@ export function TopBar() {
               href={tab.href}
               data-active={active ? '' : undefined}
               className={cn(
-                'rounded-md px-2.5 py-1 text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground transition-colors',
+                'inline-flex h-full items-center border-b-2 border-transparent px-3.5 text-[13px] font-medium text-muted-foreground transition-colors',
                 'hover:text-foreground',
-                'data-[active]:bg-elevated data-[active]:text-foreground',
+                'data-[active]:border-foreground data-[active]:text-foreground',
               )}
             >
               {tab.label}
@@ -51,8 +51,8 @@ export function TopBar() {
         })}
       </nav>
 
-      <div className="ml-auto flex items-center gap-2">
-        <LiveIndicator status="healthy" label="Live · BTC 1h" />
+      <div className="ml-auto flex items-center gap-4">
+        <LiveIndicator status="healthy" label="BTC · 1h · last bar 12:00 UTC" />
         <ThemeToggle />
       </div>
     </header>

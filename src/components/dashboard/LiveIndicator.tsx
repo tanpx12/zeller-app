@@ -15,13 +15,18 @@ export interface LiveIndicatorProps {
   className?: string
 }
 
+/**
+ * Plain `dot + mono text`, no enclosing pill — matches the mockup's
+ * `.live-indicator` (`index.html:83, 326-330`). The breathing glow on the
+ * dot is the only affordance signalling liveness.
+ */
 export function LiveIndicator({ status, label, className }: LiveIndicatorProps) {
   return (
     <span
       data-slot="live-indicator"
       data-status={status}
       className={cn(
-        'inline-flex items-center gap-2 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground',
+        'inline-flex items-center gap-[7px] font-mono text-xs text-muted-foreground',
         className,
       )}
     >

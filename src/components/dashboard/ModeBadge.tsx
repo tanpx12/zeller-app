@@ -22,7 +22,7 @@ export function ModeBadge({ mode, className }: ModeBadgeProps) {
       data-slot="mode-badge"
       data-mode={mode}
       className={cn(
-        'rounded-[4px] border-transparent px-1.5 text-[10px] font-medium uppercase tracking-[0.06em]',
+        'rounded-[4px] border-transparent px-2 py-[2px] font-sans text-[10px] font-medium uppercase tracking-[0.04em]',
         modeClass[mode],
         className,
       )}

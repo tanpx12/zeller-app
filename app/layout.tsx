@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-background text-foreground antialiased">
         <Providers>
           <TopBar />
-          <main className="mx-auto max-w-[1280px] px-4 py-6">{children}</main>
+          <main className="mx-auto max-w-[1480px] px-6 pt-5 pb-[60px]">{children}</main>
         </Providers>
       </body>
     </html>

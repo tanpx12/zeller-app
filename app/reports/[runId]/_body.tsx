@@ -5,13 +5,12 @@ import { ApiError } from '@/api-client'
 import { PageHeader } from '@/components/dashboard/PageHeader'
 import { ErrorBoundary } from '@/components/dashboard/ErrorBoundary'
 import { EmptyState } from '@/components/dashboard/EmptyState'
-import { RangeChips, type RangeValue } from '@/components/dashboard/RangeChips'
+import type { RangeValue } from '@/components/dashboard/RangeChips'
 import { HeadlineKpis } from '@/components/sections/HeadlineKpis'
 import { StatGrid } from '@/components/sections/StatGrid'
 import { TradeTable } from '@/components/sections/TradeTable'
 import { RiskEventFeed } from '@/components/sections/RiskEventFeed'
-import { EquityChart } from '@/components/sections/EquityChart'
-import { DrawdownChart } from '@/components/sections/DrawdownChart'
+import { EquityCard } from '@/components/sections/EquityCard'
 import { HourOfDayChart } from '@/components/sections/HourOfDayChart'
 import { CostAttributionDonut } from '@/components/sections/CostAttributionDonut'
 import { ForecastDiagnostics } from '@/components/sections/ForecastDiagnostics'
@@ -75,25 +74,15 @@ export function ReportDetailBody({ runId }: { runId: string }) {
         )}
       </ErrorBoundary>
 
-      <ErrorBoundary label="Equity">
-        <section className="space-y-2">
-          <div className="flex items-baseline justify-between">
-            <h2 className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
-              Equity curve
-            </h2>
-            <RangeChips value={range} onValueChange={setRange} />
-          </div>
-          <EquityChart data={equity.data} loading={equity.isLoading} />
-        </section>
-      </ErrorBoundary>
-
-      <ErrorBoundary label="Drawdown">
-        <section className="space-y-2">
-          <h2 className="text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
-            Drawdown
-          </h2>
-          <DrawdownChart data={drawdown.data} loading={drawdown.isLoading} />
-        </section>
+      <ErrorBoundary label="Equity curve">
+        <EquityCard
+          equity={equity.data}
+          drawdown={drawdown.data}
+          equityLoading={equity.isLoading}
+          drawdownLoading={drawdown.isLoading}
+          range={range}
+          onRangeChange={setRange}
+        />
       </ErrorBoundary>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
