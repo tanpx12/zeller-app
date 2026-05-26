@@ -21,9 +21,10 @@ export const dynamicParams = false
 const PLACEHOLDER = '_placeholder'
 
 export async function generateStaticParams() {
-  const base = process.env.NEXT_PUBLIC_API_BASE ?? 'http://127.0.0.1:8787/api/v1'
+  const raw = process.env.NEXT_PUBLIC_API_BASE ?? 'http://127.0.0.1:8787'
+  const base = raw.replace(/\/api\/v1\/?$/, '')
   try {
-    const res = await fetch(`${base}/decisions`, { cache: 'no-store' })
+    const res = await fetch(`${base}/api/v1/decisions`, { cache: 'no-store' })
     if (!res.ok) return [{ date: PLACEHOLDER }]
     const json = (await res.json()) as DecisionListResponse
     const params = json.data.map((entry) => ({ date: encodeURIComponent(entry.date) }))

@@ -10,9 +10,10 @@ const PLACEHOLDER = '_placeholder'
 export const dynamicParams = false
 
 export async function generateStaticParams() {
-  const base = process.env.NEXT_PUBLIC_API_BASE ?? 'http://127.0.0.1:8787/api/v1'
+  const raw = process.env.NEXT_PUBLIC_API_BASE ?? 'http://127.0.0.1:8787'
+  const base = raw.replace(/\/api\/v1\/?$/, '')
   try {
-    const res = await fetch(`${base}/models`, { cache: 'no-store' })
+    const res = await fetch(`${base}/api/v1/models`, { cache: 'no-store' })
     if (!res.ok) return [{ name: PLACEHOLDER }]
     const json = (await res.json()) as ModelListResponse
     const params = json.data.map((m) => ({ name: encodeURIComponent(m.id) }))
