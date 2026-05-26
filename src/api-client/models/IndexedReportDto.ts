@@ -22,6 +22,13 @@ export type IndexedReportDto = {
     config_hash: string;
     generated_at_ms: number;
     git_sha?: string | null;
+    /**
+     * Starting equity (USD). Project default `10_000.0` unless a
+     * caller overrode it at `BacktestConfig.portfolio.initial_equity_usd`.
+     * Surfaced here so dashboards can compute return % without
+     * loading the full headline section.
+     */
+    initial_equity: number;
     interval: string;
     max_drawdown_pct: number;
     /**

@@ -126,6 +126,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   tagged-union DTOs into stable identifiers + display strings the
   components can render without re-implementing the union logic.
 
+### Changed
+
+- **Breaking:** models: `/models` surface now shows model architecture details (features, leaves, threshold, stop loss) instead of per-strategy run aggregation — follows backend `f289159` which replaced the catalog with architecture types ([`b44ca95`](../../commit/b44ca95))
+- reports: Model column removed from report table — `model_name` dropped from backend `IndexedReportDto` ([`b44ca95`](../../commit/b44ca95))
+
+### Removed
+
+- models: `/models/{name}` trade aggregation view, `ModelTradesTable`, `ModelTradesSummary`, `ModelTradesFilters` — backend removed `/models/{name}/trades` endpoint ([`b44ca95`](../../commit/b44ca95))
+
 ### Fixed
 
 - charts: Recharts tooltip text now respects theme in dark mode — previously fell back to black (`#000`) when series used `<Cell>` coloring ([`770d1e4`](../../commit/770d1e4))

@@ -15,7 +15,7 @@ export async function generateStaticParams() {
     const res = await fetch(`${base}/models`, { cache: 'no-store' })
     if (!res.ok) return [{ name: PLACEHOLDER }]
     const json = (await res.json()) as ModelListResponse
-    const params = json.data.map((m) => ({ name: encodeURIComponent(m.name) }))
+    const params = json.data.map((m) => ({ name: encodeURIComponent(m.id) }))
     return params.length > 0 ? params : [{ name: PLACEHOLDER }]
   } catch {
     return [{ name: PLACEHOLDER }]
