@@ -66,6 +66,8 @@ export function BaseBarChart<T extends Record<string, unknown>>({
           />
           <Tooltip
             contentStyle={theme.tooltip.contentStyle}
+            labelStyle={theme.tooltip.labelStyle}
+            itemStyle={theme.tooltip.itemStyle}
             cursor={{ fill: colors['--elevated'] }}
             formatter={
               yFormatter

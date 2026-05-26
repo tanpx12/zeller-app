@@ -48,6 +48,8 @@ export function BaseDonut({
           </Pie>
           <Tooltip
             contentStyle={theme.tooltip.contentStyle}
+            labelStyle={theme.tooltip.labelStyle}
+            itemStyle={theme.tooltip.itemStyle}
             formatter={
               valueFormatter
                 ? (v: unknown) => (typeof v === 'number' ? valueFormatter(v) : String(v))

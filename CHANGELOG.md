@@ -126,6 +126,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   tagged-union DTOs into stable identifiers + display strings the
   components can render without re-implementing the union logic.
 
+### Fixed
+
+- charts: Recharts tooltip text now respects theme in dark mode — previously fell back to black (`#000`) when series used `<Cell>` coloring ([`770d1e4`](../../commit/770d1e4))
+
 ### Notes
 
 - `/reports/[runId]` first-load JS is 268 KB and `/compare` is 278 KB (both

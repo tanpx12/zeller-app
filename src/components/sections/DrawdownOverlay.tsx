@@ -87,6 +87,8 @@ export function DrawdownOverlay({ a, b, loading, height = 200 }: DrawdownOverlay
           />
           <Tooltip
             contentStyle={theme.tooltip.contentStyle}
+            labelStyle={theme.tooltip.labelStyle}
+            itemStyle={theme.tooltip.itemStyle}
             cursor={{ stroke: colors['--border-strong'], strokeWidth: 1 }}
             formatter={(v: unknown) => (typeof v === 'number' ? percent(v) : String(v))}
             labelFormatter={(v: unknown) =>

@@ -73,6 +73,8 @@ export function BaseLineChart<T extends Record<string, unknown>>({
           />
           <Tooltip
             contentStyle={theme.tooltip.contentStyle}
+            labelStyle={theme.tooltip.labelStyle}
+            itemStyle={theme.tooltip.itemStyle}
             cursor={{ stroke: colors['--border-strong'], strokeWidth: 1 }}
             formatter={
               yFormatter

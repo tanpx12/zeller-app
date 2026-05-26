@@ -76,6 +76,8 @@ export function ReturnDistribution({ data, loading, height = 200 }: ReturnDistri
           />
           <Tooltip
             contentStyle={theme.tooltip.contentStyle}
+            labelStyle={theme.tooltip.labelStyle}
+            itemStyle={theme.tooltip.itemStyle}
             cursor={{ fill: colors['--elevated'] }}
           />
           <Bar
