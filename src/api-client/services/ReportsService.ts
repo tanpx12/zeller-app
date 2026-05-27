@@ -24,6 +24,7 @@ export class ReportsService {
     public static listReports({
         mode,
         asset,
+        model,
         since,
         until,
         minSharpe,
@@ -39,6 +40,10 @@ export class ReportsService {
          * Exact-match asset symbol (e.g. BTC)
          */
         asset?: string,
+        /**
+         * Exact-match model name (e.g. euler, gauss, laplace)
+         */
+        model?: string,
         /**
          * Inclusive lower bound on period_start (YYYY-MM-DD UTC or unix ms)
          */
@@ -70,6 +75,7 @@ export class ReportsService {
             query: {
                 'mode': mode,
                 'asset': asset,
+                'model': model,
                 'since': since,
                 'until': until,
                 'min_sharpe': minSharpe,

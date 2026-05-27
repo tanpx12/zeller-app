@@ -74,6 +74,12 @@ export type RunMetadata = {
      */
     model_hash: Array<number>;
     /**
+     * Human-readable model name (`"euler"`, `"gauss"`, `"laplace"`).
+     *
+     * `None` for reports written before this field landed.
+     */
+    model_name?: string | null;
+    /**
      * `(start, end)` UTC timestamps of the first and last bar covered by
      * the run.
      */

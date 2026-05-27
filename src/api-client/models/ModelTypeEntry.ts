@@ -11,6 +11,11 @@ export type ModelTypeEntry = {
      */
     architecture: string;
     /**
+     * Lowercase hex (64 chars) of the `BacktestConfig` hash used by
+     * this model's canonical runs. `null` until a run has been persisted.
+     */
+    config_hash?: string | null;
+    /**
      * Brief description of the model's character.
      */
     description: string;

@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import type { HeadlineSection, IndexedReportDto } from '@/api-client'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -21,7 +22,7 @@ export interface ReportTableProps {
 }
 
 const GRID_COLS =
-  'grid-cols-[130px_90px_180px_1fr_110px_70px_80px_24px] max-[1100px]:grid-cols-[100px_80px_140px_1fr_90px_60px_24px]'
+  'grid-cols-[110px_130px_90px_180px_1fr_110px_70px_80px_24px] max-[1100px]:grid-cols-[90px_100px_80px_140px_1fr_90px_60px_24px]'
 
 const TRADES_COL_HIDE = 'max-[1100px]:hidden'
 
@@ -77,6 +78,7 @@ export function ReportTable({ rows, loading = false }: ReportTableProps) {
           GRID_COLS,
         )}
       >
+        <span>Model</span>
         <span>Run ID</span>
         <span>Mode</span>
         <span>Period</span>
@@ -217,6 +219,20 @@ function ReportRow({
         GRID_COLS,
       )}
     >
+      <span className="truncate">
+        {row.model_name ? (
+          <Link
+            href={`/models/${encodeURIComponent(row.model_name)}`}
+            onClick={(e) => e.stopPropagation()}
+            className="font-medium text-foreground transition-colors hover:text-primary"
+            title={`View all runs of ${row.model_name}`}
+          >
+            {row.model_name}
+          </Link>
+        ) : (
+          <span className="text-faint-foreground">—</span>
+        )}
+      </span>
       <span className="truncate text-muted-foreground">{row.run_id}</span>
       <span>
         <ModeBadge mode={toMode(row.mode)} />
@@ -269,6 +285,7 @@ function ReportRowSkeleton() {
         GRID_COLS,
       )}
     >
+      <Skeleton className="h-3.5 w-20" />
       <Skeleton className="h-3.5 w-24" />
       <Skeleton className="h-4 w-16" />
       <Skeleton className="h-3.5 w-32" />

@@ -129,7 +129,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - **Breaking:** models: `/models` surface now shows model architecture details (features, leaves, threshold, stop loss) instead of per-strategy run aggregation — follows backend `f289159` which replaced the catalog with architecture types ([`b44ca95`](../../commit/b44ca95))
-- reports: Model column removed from report table — `model_name` dropped from backend `IndexedReportDto` ([`b44ca95`](../../commit/b44ca95))
+- reports: Model column removed then restored — backend temporarily dropped `model_name` from `IndexedReportDto` then re-added it with a simpler derivation ([`b44ca95`](../../commit/b44ca95), [`d7d93d9`](../../commit/d7d93d9))
 
 ### Removed
 

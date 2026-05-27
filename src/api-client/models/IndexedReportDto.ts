@@ -39,6 +39,11 @@ export type IndexedReportDto = {
      * Lowercase hex (64 chars).
      */
     model_hash: string;
+    /**
+     * Human-readable model name (`"euler"`, `"gauss"`, `"laplace"`).
+     * `null` for reports written before this field landed.
+     */
+    model_name?: string | null;
     period_end_ms: number;
     period_start_ms: number;
     run_id: string;
