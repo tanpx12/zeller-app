@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AdapterReport } from './AdapterReport';
 import type { AttributionSection } from './AttributionSection';
 import type { BaselineComparison } from './BaselineComparison';
 import type { ForecastSection } from './ForecastSection';
@@ -17,6 +18,7 @@ import type { TradesSection } from './TradesSection';
  * renderer is a presentation specialisation.
  */
 export type PerformanceReport = {
+    adapter?: (null | AdapterReport);
     /**
      * PnL attribution + counterfactual Sharpe with costs / funding zeroed.
      */
