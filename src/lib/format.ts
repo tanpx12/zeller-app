@@ -28,3 +28,8 @@ export function decimals(value: number, digits = 2): string {
     maximumFractionDigits: digits,
   }).format(value)
 }
+
+export function scientific(value: number): string {
+  if (value === 0) return '0'
+  return value.toExponential(1)
+}
