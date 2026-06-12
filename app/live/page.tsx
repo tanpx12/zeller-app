@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/dashboard/EmptyState'
 import { LiveKpis } from '@/components/sections/LiveKpis'
 import { LiveFillsTape } from '@/components/sections/LiveFillsTape'
 import { LiveForecastDiagnostics } from '@/components/sections/LiveForecastDiagnostics'
+import { AdapterStatusCard, type AdapterLiveStatus } from '@/components/sections/AdapterStatusCard'
 import { EquityChart } from '@/components/sections/EquityChart'
 import { RiskEventFeed } from '@/components/sections/RiskEventFeed'
 import { useLiveStatus } from '@/hooks/useLiveStatus'
@@ -114,14 +115,24 @@ export default function LivePage() {
               </section>
             </ErrorBoundary>
 
-            <ErrorBoundary label="Forecast diagnostics">
-              <section className="rounded-lg border border-border bg-surface px-[18px] py-4">
-                <div className="mb-3 text-[13px] font-medium text-foreground">
-                  Forecast diagnostics
-                </div>
-                <LiveForecastDiagnostics data={status.data} />
-              </section>
-            </ErrorBoundary>
+            <div className="flex flex-col gap-4">
+              <ErrorBoundary label="Forecast diagnostics">
+                <section className="rounded-lg border border-border bg-surface px-[18px] py-4">
+                  <div className="mb-3 text-[13px] font-medium text-foreground">
+                    Forecast diagnostics
+                  </div>
+                  <LiveForecastDiagnostics data={status.data} />
+                </section>
+              </ErrorBoundary>
+
+              <ErrorBoundary label="Signal adapter">
+                {/* Defensive read: `adapter` is not yet in the generated LiveStatusDto.
+                    When the backend ships it, the card lights up without code changes. */}
+                <AdapterStatusCard
+                  status={(status.data as { adapter?: AdapterLiveStatus } | undefined)?.adapter}
+                />
+              </ErrorBoundary>
+            </div>
           </div>
         </>
       )}
