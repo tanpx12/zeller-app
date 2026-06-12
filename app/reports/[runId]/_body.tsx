@@ -15,6 +15,7 @@ import { HourOfDayChart } from '@/components/sections/HourOfDayChart'
 import { CostAttributionDonut } from '@/components/sections/CostAttributionDonut'
 import { ForecastDiagnostics } from '@/components/sections/ForecastDiagnostics'
 import { ConfigSnapshotCard } from '@/components/sections/ConfigSnapshotCard'
+import { AdapterSection } from '@/components/sections/AdapterSection'
 import {
   useReportAttribution,
   useReportDrawdown,
@@ -116,6 +117,10 @@ export function ReportDetailBody({ runId }: { runId: string }) {
           </section>
         </ErrorBoundary>
       </div>
+
+      <ErrorBoundary label="Signal adapter">
+        <AdapterSection adapter={full.data?.adapter} />
+      </ErrorBoundary>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
         <ErrorBoundary label="Trades">
