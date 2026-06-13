@@ -3,7 +3,6 @@ import { ReportDetailBody } from './_body'
 import type { ListReportsResponse } from '@/api-client'
 
 const PLACEHOLDER = '_placeholder'
-export const dynamicParams = false
 
 export async function generateStaticParams(): Promise<Array<{ runId: string }>> {
   const base = process.env.NEXT_PUBLIC_API_BASE ?? 'http://127.0.0.1:8787'

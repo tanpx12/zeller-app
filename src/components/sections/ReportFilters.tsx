@@ -17,11 +17,14 @@ export interface ReportFiltersProps {
   totalCount?: number
 }
 
+// Mode values match the backend's `WireMode` enum (`backtest` |
+// `paper_trade` | `reconciliation`). The backend also accepts legacy
+// values for backward compat but the dashboard standardises on WireMode
+// since that's what `facets.by_mode` keys against.
 const modeOptions: { value: string; label: string }[] = [
   { value: '', label: 'All' },
-  { value: 'batch', label: 'Batch' },
-  { value: 'holdout', label: 'Holdout' },
-  { value: 'live', label: 'Live' },
+  { value: 'backtest', label: 'Backtest' },
+  { value: 'paper_trade', label: 'Paper' },
   { value: 'reconciliation', label: 'Decision' },
 ]
 

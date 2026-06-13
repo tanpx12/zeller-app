@@ -11,12 +11,29 @@ import { ReportTable } from '@/components/sections/ReportTable'
 import { ReportFilters } from '@/components/sections/ReportFilters'
 import { useReportListInfinite } from '@/hooks/useReportListInfinite'
 
+// Normalize URL params to API filter values. Critical: empty strings get
+// coerced to `undefined` so a stray `?mode=` (e.g. from a prior "Reset"
+// half-applied) doesn't ship `mode=""` to the backend, which now strictly
+// 400s on an empty mode string.
+function nonEmpty(raw: string | null): string | undefined {
+  if (raw == null) return undefined
+  const trimmed = raw.trim()
+  return trimmed.length === 0 ? undefined : trimmed
+}
+
+function maybeNumber(raw: string | null): number | undefined {
+  const s = nonEmpty(raw)
+  if (s == null) return undefined
+  const n = Number(s)
+  return Number.isFinite(n) ? n : undefined
+}
+
 function ReportsBody() {
   const params = useSearchParams()
   const filters = {
-    mode: params.get('mode') ?? undefined,
-    asset: params.get('asset') ?? undefined,
-    minSharpe: params.get('min_sharpe') ? Number(params.get('min_sharpe')) : undefined,
+    mode: nonEmpty(params.get('mode')),
+    asset: nonEmpty(params.get('asset')),
+    minSharpe: maybeNumber(params.get('min_sharpe')),
     limit: 50,
   }
 

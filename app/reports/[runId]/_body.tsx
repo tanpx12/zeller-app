@@ -78,6 +78,10 @@ export function ReportDetailBody({ runId }: { runId: string }) {
         )}
       </ErrorBoundary>
 
+      <ErrorBoundary label="Config snapshot">
+        <ConfigSnapshotCard data={full.data?.meta.config_snapshot} loading={full.isLoading} />
+      </ErrorBoundary>
+
       <ErrorBoundary label="Equity curve">
         <EquityCard
           equity={equity.data}
@@ -141,10 +145,6 @@ export function ReportDetailBody({ runId }: { runId: string }) {
           </section>
         </ErrorBoundary>
       </div>
-
-      <ErrorBoundary label="Config snapshot">
-        <ConfigSnapshotCard data={full.data?.meta.config_snapshot} loading={full.isLoading} />
-      </ErrorBoundary>
     </div>
   )
 }
