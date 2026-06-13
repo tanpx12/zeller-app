@@ -20,11 +20,13 @@ export function TopBar() {
   const pathname = usePathname()
   const live = useLiveStatus()
   const liveLabel =
-    live.status === 'down'
-      ? 'Live runner offline'
-      : live.data
-        ? `BTC · last bar ${formatUtc(live.data.timestamp).slice(11, 16)} UTC`
-        : 'Connecting…'
+    live.status === 'paused'
+      ? 'Live · paused'
+      : live.status === 'down'
+        ? 'Live runner offline'
+        : live.data
+          ? `BTC · last bar ${formatUtc(live.data.timestamp).slice(11, 16)} UTC`
+          : 'Connecting…'
 
   return (
     <header

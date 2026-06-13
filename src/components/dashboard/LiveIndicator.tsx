@@ -1,12 +1,15 @@
 import { cn } from '@/lib/utils'
 import { LiveDot, type LiveDotColor } from './LiveDot'
 
-export type LiveStatus = 'healthy' | 'lagging' | 'down'
+export type LiveStatus = 'healthy' | 'lagging' | 'down' | 'paused'
 
 const statusToColor: Record<LiveStatus, LiveDotColor> = {
   healthy: 'positive',
   lagging: 'warning',
   down: 'negative',
+  // Paused = polling intentionally disabled (paper trade delayed). Muted
+  // dot so the operator doesn't mistake it for a healthy connection.
+  paused: 'muted',
 }
 
 export interface LiveIndicatorProps {

@@ -5,7 +5,15 @@ import { useQuery } from '@tanstack/react-query'
 import { ApiError, LiveService, type LiveStatusDto } from '@/api-client'
 import '@/lib/client'
 
-export type LiveHealth = 'healthy' | 'lagging' | 'down'
+export type LiveHealth = 'healthy' | 'lagging' | 'down' | 'paused'
+
+/**
+ * Master kill-switch for the /live/status polling. Set to `false` while
+ * paper trade is delayed and real-live trade is deferred (see project
+ * memory `scope-backtest-only`). Flip via `NEXT_PUBLIC_LIVE_POLLING=on`
+ * for local debugging without code change.
+ */
+const LIVE_POLLING_ENABLED = process.env.NEXT_PUBLIC_LIVE_POLLING === 'on'
 
 export interface LiveStatusResult {
   status: LiveHealth
@@ -46,14 +54,15 @@ export function useLiveStatus(): LiveStatusResult {
   const q = useQuery<LiveStatusDto>({
     queryKey: ['live', 'status'],
     queryFn: () => LiveService.getStatus(),
-    refetchInterval: docVisible ? 1000 : false,
+    refetchInterval: docVisible && LIVE_POLLING_ENABLED ? 1000 : false,
     refetchIntervalInBackground: false,
     staleTime: 500,
     retry: false,
-    enabled: docVisible,
+    enabled: docVisible && LIVE_POLLING_ENABLED,
   })
 
   const status: LiveHealth = useMemo(() => {
+    if (!LIVE_POLLING_ENABLED) return 'paused'
     if (q.error instanceof ApiError && q.error.status === 503) return 'down'
     if (q.error) return 'down'
     const age = q.data?.age_seconds
