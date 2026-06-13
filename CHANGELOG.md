@@ -11,17 +11,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Live polling kill-switch** — `NEXT_PUBLIC_LIVE_POLLING` env flag
   short-circuits `useLiveStatus` to `paused` while paper trade is
   delayed. `LiveIndicator` renders a muted dot; `TopBar` shows
-  "Live · paused". ([`pending`])
+  "Live · paused". ([`7fb138d`](../../commit/7fb138d))
 
 ### Changed
 
 - **Config snapshot card** — replaced hierarchical JSON tree with four
   picked KvRows (sizer type, leverage, stop loss, slippage) for a
-  cleaner operator view. ([`pending`])
+  cleaner operator view. ([`f752781`](../../commit/f752781))
 - **Report filters** — URL params coerce empty strings to `undefined`
   to prevent backend 400s on stray `?mode=`; mode options aligned to
   `WireMode` enum (`backtest` / `paper_trade` / `reconciliation`).
-  ([`pending`])
+  ([`f752781`](../../commit/f752781))
 
 ### Added
 
