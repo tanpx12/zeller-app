@@ -17,7 +17,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - **Live polling on by default** — `NEXT_PUBLIC_LIVE_POLLING` flipped
   from opt-in (`=on`) to opt-out (`=off`); the live dashboard now polls
-  `/live/status` without extra env configuration. ([`pending`])
+  `/live/status` without extra env configuration. ([`552a7eb`](../../commit/552a7eb))
 - **Config snapshot card** — replaced hierarchical JSON tree with four
   picked KvRows (sizer type, leverage, stop loss, slippage) for a
   cleaner operator view. ([`f752781`](../../commit/f752781))
