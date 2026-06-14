@@ -26,6 +26,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `WireMode` enum (`backtest` / `paper_trade` / `reconciliation`).
   ([`f752781`](../../commit/f752781))
 
+### Fixed
+
+- **Live status flickering** — a single transient poll failure caused
+  the indicator to flash `down` then back to `healthy` on the next
+  success. Added one retry with 500ms delay and `placeholderData` so
+  stale data survives failed refetches; 503 still always means down.
+  ([`pending`])
+
 ### Added
 
 - **Models tab** — new `/models` surface against the backend's `/api/v1/models`

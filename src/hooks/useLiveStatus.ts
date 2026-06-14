@@ -55,14 +55,18 @@ export function useLiveStatus(): LiveStatusResult {
     refetchInterval: docVisible && LIVE_POLLING_ENABLED ? 1000 : false,
     refetchIntervalInBackground: false,
     staleTime: 500,
-    retry: false,
+    retry: 1,
+    retryDelay: 500,
+    placeholderData: (prev: LiveStatusDto | undefined) => prev,
     enabled: docVisible && LIVE_POLLING_ENABLED,
   })
 
   const status: LiveHealth = useMemo(() => {
     if (!LIVE_POLLING_ENABLED) return 'paused'
+    // 503 is intentional "no live runner" — always treat as down.
     if (q.error instanceof ApiError && q.error.status === 503) return 'down'
-    if (q.error) return 'down'
+    // Transient errors: if we still have recent data, stay on that.
+    if (q.error && !q.data) return 'down'
     const age = q.data?.age_seconds
     if (age == null) return q.isLoading ? 'healthy' : 'down'
     if (age > 120) return 'down'
