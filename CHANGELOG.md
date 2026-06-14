@@ -28,11 +28,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- **Live status flickering** — a single transient poll failure caused
-  the indicator to flash `down` then back to `healthy` on the next
-  success. Added one retry with 500ms delay and `placeholderData` so
-  stale data survives failed refetches; 503 still always means down.
-  ([`pending`])
+- **Live status flickering** — intermittent poll failures caused the
+  indicator to flash between `healthy` and `down`. Status now requires
+  3 consecutive failures before flipping to `down`, and the last good
+  response is retained across transient errors. ([`pending`])
 
 ### Added
 

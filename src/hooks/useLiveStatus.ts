@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ApiError, LiveService, type LiveStatusDto } from '@/api-client'
 import '@/lib/client'
+
+const DOWN_AFTER_FAILURES = 3
 
 export type LiveHealth = 'healthy' | 'lagging' | 'down' | 'paused'
 
@@ -49,25 +51,36 @@ export function useLiveStatus(): LiveStatusResult {
     return () => document.removeEventListener('visibilitychange', handler)
   }, [])
 
+  const failCount = useRef(0)
+  const lastGood = useRef<LiveStatusDto | undefined>(undefined)
+
+  const queryFn = useCallback(async () => {
+    try {
+      const res = await LiveService.getStatus()
+      failCount.current = 0
+      lastGood.current = res
+      return res
+    } catch (err) {
+      failCount.current += 1
+      throw err
+    }
+  }, [])
+
   const q = useQuery<LiveStatusDto>({
     queryKey: ['live', 'status'],
-    queryFn: () => LiveService.getStatus(),
+    queryFn,
     refetchInterval: docVisible && LIVE_POLLING_ENABLED ? 1000 : false,
     refetchIntervalInBackground: false,
     staleTime: 500,
-    retry: 1,
-    retryDelay: 500,
-    placeholderData: (prev: LiveStatusDto | undefined) => prev,
+    retry: false,
     enabled: docVisible && LIVE_POLLING_ENABLED,
   })
 
   const status: LiveHealth = useMemo(() => {
     if (!LIVE_POLLING_ENABLED) return 'paused'
-    // 503 is intentional "no live runner" — always treat as down.
-    if (q.error instanceof ApiError && q.error.status === 503) return 'down'
-    // Transient errors: if we still have recent data, stay on that.
-    if (q.error && !q.data) return 'down'
-    const age = q.data?.age_seconds
+    if (q.error && failCount.current >= DOWN_AFTER_FAILURES) return 'down'
+    const data = q.data ?? lastGood.current
+    const age = data?.age_seconds
     if (age == null) return q.isLoading ? 'healthy' : 'down'
     if (age > 120) return 'down'
     if (age > 30) return 'lagging'
@@ -76,7 +89,7 @@ export function useLiveStatus(): LiveStatusResult {
 
   return {
     status,
-    data: q.data,
+    data: q.data ?? lastGood.current,
     error: q.error,
     isLoading: q.isLoading,
     refetch: () => void q.refetch(),
