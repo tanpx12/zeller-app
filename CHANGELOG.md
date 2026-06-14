@@ -32,7 +32,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the indicator to flash `healthy` → `down` on every component
   re-mount. Simplified: status now derives solely from data
   (`age_seconds`), with `retry: 2` and a `lastGood` ref to absorb
-  transient errors. ([`pending`])
+  transient errors. ([`25eca0d`](../../commit/25eca0d))
 
 ### Added
 
