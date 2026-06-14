@@ -8,12 +8,10 @@ import '@/lib/client'
 export type LiveHealth = 'healthy' | 'lagging' | 'down' | 'paused'
 
 /**
- * Master kill-switch for the /live/status polling. Set to `false` while
- * paper trade is delayed and real-live trade is deferred (see project
- * memory `scope-backtest-only`). Flip via `NEXT_PUBLIC_LIVE_POLLING=on`
- * for local debugging without code change.
+ * Kill-switch for /live/status polling. Defaults to on; set
+ * `NEXT_PUBLIC_LIVE_POLLING=off` to disable without a code change.
  */
-const LIVE_POLLING_ENABLED = process.env.NEXT_PUBLIC_LIVE_POLLING === 'on'
+const LIVE_POLLING_ENABLED = process.env.NEXT_PUBLIC_LIVE_POLLING !== 'off'
 
 export interface LiveStatusResult {
   status: LiveHealth
