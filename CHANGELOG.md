@@ -28,10 +28,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- **Live status flickering** — intermittent poll failures caused the
-  indicator to flash between `healthy` and `down`. Status now requires
-  3 consecutive failures before flipping to `down`, and the last good
-  response is retained across transient errors. ([`7dc7686`](../../commit/7dc7686))
+- **Live status flickering** — status derived from `isLoading` caused
+  the indicator to flash `healthy` → `down` on every component
+  re-mount. Simplified: status now derives solely from data
+  (`age_seconds`), with `retry: 2` and a `lastGood` ref to absorb
+  transient errors. ([`pending`])
 
 ### Added
 
