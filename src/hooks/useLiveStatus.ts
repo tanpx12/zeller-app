@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ApiError, LiveService, type LiveStatusDto } from '@/api-client'
+import { LiveService, type LiveStatusDto } from '@/api-client'
 import '@/lib/client'
 
 const DOWN_AFTER_FAILURES = 3
