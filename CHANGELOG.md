@@ -38,7 +38,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   legitimately sweeps up to ~3600s in perfect health and tripped "offline"
   ~58 minutes of every hour. Thresholds now scale to the bar interval:
   `down` at 7200s (2 bars, matching the backend `--live-stale-threshold-secs`
-  default) and `lagging` at one bar + 5 min grace. ([`pending`](../../commit/pending))
+  default) and `lagging` at one bar + 5 min grace. ([`725ab2c`](../../commit/725ab2c))
 - **Live status flickering** — status derived from `isLoading` caused
   the indicator to flash `healthy` → `down` on every component
   re-mount. Simplified: status now derives solely from data
