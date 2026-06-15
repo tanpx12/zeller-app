@@ -32,6 +32,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- **Live runner false "offline"** — staleness thresholds assumed a
+  sub-2-minute persist cadence (`down` at 120s, `lagging` at 30s), but the
+  runner persists one snapshot per hourly bar *close*, so `age_seconds`
+  legitimately sweeps up to ~3600s in perfect health and tripped "offline"
+  ~58 minutes of every hour. Thresholds now scale to the bar interval:
+  `down` at 7200s (2 bars, matching the backend `--live-stale-threshold-secs`
+  default) and `lagging` at one bar + 5 min grace. ([`pending`](../../commit/pending))
 - **Live status flickering** — status derived from `isLoading` caused
   the indicator to flash `healthy` → `down` on every component
   re-mount. Simplified: status now derives solely from data

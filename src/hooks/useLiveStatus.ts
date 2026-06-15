@@ -14,6 +14,22 @@ export type LiveHealth = 'healthy' | 'lagging' | 'down' | 'paused'
  */
 const LIVE_POLLING_ENABLED = process.env.NEXT_PUBLIC_LIVE_POLLING !== 'off'
 
+/**
+ * The live runner persists one state snapshot per bar *close*, and bars are
+ * hourly — so `age_seconds` legitimately sweeps from ~1s (just after a
+ * close) up to ~3600s (just before the next close) in perfect health. The
+ * staleness thresholds must therefore be expressed in bar intervals, not
+ * the wall-clock seconds that would suit a sub-minute persist cadence.
+ *
+ * `DOWN` mirrors the backend's `--live-stale-threshold-secs` default of two
+ * bar intervals (the backend already moved its own 503-stale ceiling from
+ * 120s → 7200s for exactly this reason). `LAGGING` trips one bar interval
+ * plus a grace window, i.e. when a bar close looks overdue.
+ */
+const BAR_INTERVAL_SECS = 3600
+const DOWN_AGE_SECS = BAR_INTERVAL_SECS * 2 // 7200 — matches backend ceiling
+const LAGGING_AGE_SECS = BAR_INTERVAL_SECS + 300 // one bar + 5 min grace
+
 export interface LiveStatusResult {
   status: LiveHealth
   /** Most recent successful response, or undefined if we've never had one. */
@@ -33,10 +49,10 @@ export interface LiveStatusResult {
  * snapshot has been written in 2 minutes, which would otherwise spam the
  * console.
  *
- * Status semantics:
+ * Status semantics (thresholds are in bar intervals — see above):
  *  - `down`    → last response was 503 (or no successful response yet AND
- *                a fetch errored), OR `age_seconds > 120s`
- *  - `lagging` → `age_seconds > 30s` (live runner is behind real-time)
+ *                a fetch errored), OR `age_seconds > DOWN_AGE_SECS` (2 bars)
+ *  - `lagging` → `age_seconds > LAGGING_AGE_SECS` (a bar close is overdue)
  *  - `healthy` → otherwise
  */
 export function useLiveStatus(model?: LiveModelName): LiveStatusResult {
@@ -75,8 +91,8 @@ export function useLiveStatus(model?: LiveModelName): LiveStatusResult {
     if (!LIVE_POLLING_ENABLED) return 'paused'
     const age = data?.age_seconds
     if (age == null) return 'down'
-    if (age > 120) return 'down'
-    if (age > 30) return 'lagging'
+    if (age > DOWN_AGE_SECS) return 'down'
+    if (age > LAGGING_AGE_SECS) return 'lagging'
     return 'healthy'
   }, [data])
 
