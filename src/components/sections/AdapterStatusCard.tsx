@@ -1,19 +1,10 @@
+import type { AdapterStatus } from '@/api-client'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/dashboard/EmptyState'
 import { Gauge } from 'lucide-react'
 
-/**
- * Live adapter status. Mirrors the backend `AdapterStatus` struct.
- * Local type until the backend wires AdapterStatus into LiveStatusDto —
- * then replace with the generated type from @/api-client.
- */
-export interface AdapterLiveStatus {
-  enabled: boolean
-  authoritative_id: string
-  instance_count: number
-}
-
-export function AdapterStatusCard({ status }: { status: AdapterLiveStatus | undefined }) {
+// Backed by the generated `AdapterStatus` (live/status `adapter` field).
+export function AdapterStatusCard({ status }: { status: AdapterStatus | null | undefined }) {
   if (!status) {
     return (
       <EmptyState

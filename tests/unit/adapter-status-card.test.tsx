@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { AdapterStatusCard, type AdapterLiveStatus } from '@/components/sections/AdapterStatusCard'
+import type { AdapterStatus } from '@/api-client'
+import { AdapterStatusCard } from '@/components/sections/AdapterStatusCard'
 
 describe('AdapterStatusCard', () => {
   it('renders fallback when no adapter status', () => {
@@ -9,7 +10,7 @@ describe('AdapterStatusCard', () => {
   })
 
   it('renders status fields when present', () => {
-    const status: AdapterLiveStatus = {
+    const status: AdapterStatus = {
       enabled: true,
       authoritative_id: 'kalman_a',
       instance_count: 4,

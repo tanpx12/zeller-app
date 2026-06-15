@@ -8,6 +8,7 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { AdapterReport } from './models/AdapterReport';
+export type { AdapterStatus } from './models/AdapterStatus';
 export type { AttributionDto } from './models/AttributionDto';
 export type { AttributionSection } from './models/AttributionSection';
 export type { BaselineComparison } from './models/BaselineComparison';

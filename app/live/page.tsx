@@ -11,7 +11,7 @@ import { EmptyState } from '@/components/dashboard/EmptyState'
 import { LiveKpis } from '@/components/sections/LiveKpis'
 import { LiveFillsTape } from '@/components/sections/LiveFillsTape'
 import { LiveForecastDiagnostics } from '@/components/sections/LiveForecastDiagnostics'
-import { AdapterStatusCard, type AdapterLiveStatus } from '@/components/sections/AdapterStatusCard'
+import { AdapterStatusCard } from '@/components/sections/AdapterStatusCard'
 import { EquityChart } from '@/components/sections/EquityChart'
 import { RiskEventFeed } from '@/components/sections/RiskEventFeed'
 import { LiveModelSelector } from '@/components/dashboard/LiveModelSelector'
@@ -154,11 +154,7 @@ function LiveBody() {
               </ErrorBoundary>
 
               <ErrorBoundary label="Signal adapter">
-                {/* Defensive read: `adapter` is not yet in the generated LiveStatusDto.
-                    When the backend ships it, the card lights up without code changes. */}
-                <AdapterStatusCard
-                  status={(status.data as { adapter?: AdapterLiveStatus } | undefined)?.adapter}
-                />
+                <AdapterStatusCard status={status.data?.adapter} />
               </ErrorBoundary>
             </div>
           </div>

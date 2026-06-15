@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AdapterStatus } from './AdapterStatus';
 import type { ForecastDiagnosticsDto } from './ForecastDiagnosticsDto';
 import type { RecentPnlDto } from './RecentPnlDto';
 /**
@@ -17,6 +18,7 @@ import type { RecentPnlDto } from './RecentPnlDto';
  * v1.1 additions: `sigma_hat`, `recent_pnl`, `forecast_diagnostics`.
  */
 export type LiveStatusDto = {
+    adapter?: (null | AdapterStatus);
     /**
      * `now - written_at_ms` in seconds; clamped to `0` when the clock
      * is non-monotonic.
