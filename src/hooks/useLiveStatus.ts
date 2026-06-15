@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { LiveService, type LiveStatusDto } from '@/api-client'
+import { getModelStatus, type LiveModelName } from '@/lib/live-model-client'
 import '@/lib/client'
 
 export type LiveHealth = 'healthy' | 'lagging' | 'down' | 'paused'
@@ -38,7 +39,7 @@ export interface LiveStatusResult {
  *  - `lagging` → `age_seconds > 30s` (live runner is behind real-time)
  *  - `healthy` → otherwise
  */
-export function useLiveStatus(): LiveStatusResult {
+export function useLiveStatus(model?: LiveModelName): LiveStatusResult {
   const [docVisible, setDocVisible] = useState(true)
 
   useEffect(() => {
@@ -52,13 +53,13 @@ export function useLiveStatus(): LiveStatusResult {
   const lastGood = useRef<LiveStatusDto | undefined>(undefined)
 
   const queryFn = useCallback(async () => {
-    const res = await LiveService.getStatus()
+    const res = model ? await getModelStatus(model) : await LiveService.getStatus()
     lastGood.current = res
     return res
-  }, [])
+  }, [model])
 
   const q = useQuery<LiveStatusDto>({
-    queryKey: ['live', 'status'],
+    queryKey: ['live', 'status', model ?? 'default'],
     queryFn,
     refetchInterval: docVisible && LIVE_POLLING_ENABLED ? 1000 : false,
     refetchIntervalInBackground: false,

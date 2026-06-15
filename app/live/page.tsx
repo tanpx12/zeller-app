@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useRef } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { Activity } from 'lucide-react'
 import type { RiskEventsDto } from '@/api-client'
@@ -13,19 +14,43 @@ import { LiveForecastDiagnostics } from '@/components/sections/LiveForecastDiagn
 import { AdapterStatusCard, type AdapterLiveStatus } from '@/components/sections/AdapterStatusCard'
 import { EquityChart } from '@/components/sections/EquityChart'
 import { RiskEventFeed } from '@/components/sections/RiskEventFeed'
+import { LiveModelSelector } from '@/components/dashboard/LiveModelSelector'
 import { useLiveStatus } from '@/hooks/useLiveStatus'
 import { useLiveEquity, useLiveFills, useLiveRiskEvents } from '@/hooks/useLiveSections'
 import { useLiveStream } from '@/hooks/useLiveStream'
+import { LIVE_MODELS, DEFAULT_MODEL, type LiveModelName } from '@/lib/live-model-client'
 import type { ConnectionState } from '@/lib/ws-client'
 
 // Memoise the type filter so useLiveStream sees a stable reference.
 const STREAM_TYPES = ['fill', 'equity', 'risk_event'] as const
 
-export default function LivePage() {
-  const status = useLiveStatus()
-  const equity = useLiveEquity()
-  const fills = useLiveFills()
-  const riskEvents = useLiveRiskEvents()
+function useSelectedModel(): [LiveModelName, (m: LiveModelName) => void] {
+  const params = useSearchParams()
+  const router = useRouter()
+  const raw = params.get('model')
+  const model: LiveModelName =
+    raw && (LIVE_MODELS as readonly string[]).includes(raw) ? (raw as LiveModelName) : DEFAULT_MODEL
+
+  const setModel = useCallback(
+    (next: LiveModelName) => {
+      const sp = new URLSearchParams(params.toString())
+      if (next === DEFAULT_MODEL) sp.delete('model')
+      else sp.set('model', next)
+      const qs = sp.toString()
+      router.replace(qs ? `?${qs}` : '?', { scroll: false })
+    },
+    [params, router],
+  )
+
+  return [model, setModel]
+}
+
+function LiveBody() {
+  const [model, setModel] = useSelectedModel()
+  const status = useLiveStatus(model)
+  const equity = useLiveEquity({ model })
+  const fills = useLiveFills({ model })
+  const riskEvents = useLiveRiskEvents({ model })
   const stream = useLiveStream({ types: STREAM_TYPES, bufferSize: 200 })
 
   useConnectionToasts(stream.state)
@@ -53,14 +78,17 @@ export default function LivePage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader
-        title="Live paper trading"
-        meta={
-          status.data
-            ? `Position updated ${status.data.age_seconds}s ago · ${stream.state}`
-            : 'Live runner status: ' + status.status
-        }
-      />
+      <div className="flex items-end justify-between gap-4">
+        <PageHeader
+          title="Live paper trading"
+          meta={
+            status.data
+              ? `Position updated ${status.data.age_seconds}s ago · ${stream.state}`
+              : 'Live runner status: ' + status.status
+          }
+        />
+        <LiveModelSelector value={model} onChange={setModel} />
+      </div>
 
       {offline ? (
         <EmptyState
@@ -137,6 +165,14 @@ export default function LivePage() {
         </>
       )}
     </div>
+  )
+}
+
+export default function LivePage() {
+  return (
+    <Suspense fallback={null}>
+      <LiveBody />
+    </Suspense>
   )
 }
 

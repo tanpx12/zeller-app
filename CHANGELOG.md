@@ -8,6 +8,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Per-model live selector** — pill group on `/live` lets the operator
+  switch between `euler`, `gauss`, and `laplace` runners. Selection is
+  URL-synced (`?model=gauss`), defaults to `euler`. All live hooks route
+  to the per-model `/live/{model}/*` endpoints. ([`pending`])
 - **Live polling kill-switch** — `NEXT_PUBLIC_LIVE_POLLING` env flag
   short-circuits `useLiveStatus` to `paused` while paper trade is
   delayed. `LiveIndicator` renders a muted dot; `TopBar` shows
