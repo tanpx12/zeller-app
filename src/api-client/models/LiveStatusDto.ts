@@ -38,6 +38,15 @@ export type LiveStatusDto = {
      */
     forecast_diagnostics: ForecastDiagnosticsDto;
     /**
+     * `true` when `age_seconds > stale_threshold_secs` — the
+     * authoritative "runner is stale / likely down" signal. Clients
+     * should drive their offline indicator from this flag, NOT from a
+     * hardcoded `age_seconds` comparison. A stale snapshot is still
+     * returned (HTTP 200) so the dashboard can show last-known values
+     * behind an offline badge.
+     */
+    is_stale: boolean;
+    /**
      * Most recent forecast emitted by the live model.
      */
     last_forecast: number;
@@ -53,6 +62,15 @@ export type LiveStatusDto = {
      * Forecast KPI card (`σ̂` shown beneath `ŷ`). v1.1 addition.
      */
     sigma_hat?: number | null;
+    /**
+     * The server's freshness ceiling in seconds (`serve
+     * --live-stale-threshold-secs`, default two bar intervals). Exposed
+     * so clients compute staleness against the server's cadence instead
+     * of hardcoding a value — the runner persists once per bar close,
+     * so `age_seconds` legitimately ranges up to one bar interval in
+     * perfect health.
+     */
+    stale_threshold_secs: number;
     /**
      * Bar timestamp (ms since epoch) of the latest snapshot.
      */

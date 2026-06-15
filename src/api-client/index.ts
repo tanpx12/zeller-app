@@ -33,6 +33,7 @@ export type { IndexedReportDto } from './models/IndexedReportDto';
 export type { Lineage } from './models/Lineage';
 export type { ListReportsResponse } from './models/ListReportsResponse';
 export type { LiveFillsDto } from './models/LiveFillsDto';
+export type { LiveModelsDto } from './models/LiveModelsDto';
 export type { LiveReconciliationDto } from './models/LiveReconciliationDto';
 export type { LiveRiskEvent } from './models/LiveRiskEvent';
 export type { LiveRiskEventsDto } from './models/LiveRiskEventsDto';

@@ -15,20 +15,44 @@ export type LiveHealth = 'healthy' | 'lagging' | 'down' | 'paused'
 const LIVE_POLLING_ENABLED = process.env.NEXT_PUBLIC_LIVE_POLLING !== 'off'
 
 /**
- * The live runner persists one state snapshot per bar *close*, and bars are
- * hourly — so `age_seconds` legitimately sweeps from ~1s (just after a
- * close) up to ~3600s (just before the next close) in perfect health. The
- * staleness thresholds must therefore be expressed in bar intervals, not
- * the wall-clock seconds that would suit a sub-minute persist cadence.
+ * The live runner persists one state snapshot per bar *close*, so
+ * `age_seconds` legitimately sweeps up to one bar interval in perfect
+ * health — a hardcoded wall-clock threshold (the old `age > 120`) would
+ * report "offline" for ~58 minutes of every healthy hour.
  *
- * `DOWN` mirrors the backend's `--live-stale-threshold-secs` default of two
- * bar intervals (the backend already moved its own 503-stale ceiling from
- * 120s → 7200s for exactly this reason). `LAGGING` trips one bar interval
- * plus a grace window, i.e. when a bar close looks overdue.
+ * `down` is now driven off the backend's authoritative `is_stale` flag
+ * (`age_seconds > stale_threshold_secs`, the server's configured ceiling)
+ * — the frontend no longer assumes a cadence. `lagging` is a soft warning
+ * tier at half the server ceiling, i.e. a bar close looks overdue.
+ *
+ * `DOWN_AGE_SECS_FALLBACK` is used only if a (pre-`is_stale`) server omits
+ * the flag — it mirrors the backend default of two bar intervals.
  */
-const BAR_INTERVAL_SECS = 3600
-const DOWN_AGE_SECS = BAR_INTERVAL_SECS * 2 // 7200 — matches backend ceiling
-const LAGGING_AGE_SECS = BAR_INTERVAL_SECS + 300 // one bar + 5 min grace
+const DOWN_AGE_SECS_FALLBACK = 7200 // two 1h bars; matches backend default
+
+/**
+ * Pure offline/health decision, extracted for unit testing. Drives the
+ * dashboard's runner indicator. `pollingEnabled=false` → `paused`.
+ *
+ * Exported so the exact rule that caused the "offline for 58 min/hour"
+ * bug is locked in by a test rather than living only inside a hook.
+ */
+export function deriveLiveHealth(
+  data: LiveStatusDto | undefined,
+  pollingEnabled: boolean,
+): LiveHealth {
+  if (!pollingEnabled) return 'paused'
+  if (data == null) return 'down'
+  const age = data.age_seconds
+  if (age == null) return 'down'
+  // Prefer the backend's authoritative staleness flag; fall back to the
+  // ceiling default only if an older server omitted it.
+  const ceiling = data.stale_threshold_secs ?? DOWN_AGE_SECS_FALLBACK
+  const isStale = data.is_stale ?? age > ceiling
+  if (isStale) return 'down'
+  if (age > ceiling / 2) return 'lagging'
+  return 'healthy'
+}
 
 export interface LiveStatusResult {
   status: LiveHealth
@@ -43,16 +67,16 @@ export interface LiveStatusResult {
 }
 
 /**
- * Polls `/live/status` every 1s while the document is visible. The hook
- * is paused (no requests) when the tab is hidden — both to save fetch
- * traffic and because the backend rejects /live/status with 503 when no
- * snapshot has been written in 2 minutes, which would otherwise spam the
- * console.
+ * Polls `/live/status` every 1s while the document is visible, and pauses
+ * (no requests) when the tab is hidden to save fetch traffic. A stale
+ * snapshot returns 200 with `is_stale=true` (not 503), so polling a stale
+ * runner is harmless — `deriveLiveHealth` maps it to `down`.
  *
- * Status semantics (thresholds are in bar intervals — see above):
- *  - `down`    → last response was 503 (or no successful response yet AND
- *                a fetch errored), OR `age_seconds > DOWN_AGE_SECS` (2 bars)
- *  - `lagging` → `age_seconds > LAGGING_AGE_SECS` (a bar close is overdue)
+ * Status semantics (driven by backend-provided fields — see above):
+ *  - `down`    → no successful response yet, OR the backend flagged the
+ *                snapshot `is_stale` (age past the server's ceiling)
+ *  - `lagging` → not stale, but older than half the server ceiling (a bar
+ *                close looks overdue)
  *  - `healthy` → otherwise
  */
 export function useLiveStatus(model?: LiveModelName): LiveStatusResult {
@@ -87,14 +111,7 @@ export function useLiveStatus(model?: LiveModelName): LiveStatusResult {
 
   const data = q.data ?? lastGood.current
 
-  const status: LiveHealth = useMemo(() => {
-    if (!LIVE_POLLING_ENABLED) return 'paused'
-    const age = data?.age_seconds
-    if (age == null) return 'down'
-    if (age > DOWN_AGE_SECS) return 'down'
-    if (age > LAGGING_AGE_SECS) return 'lagging'
-    return 'healthy'
-  }, [data])
+  const status: LiveHealth = useMemo(() => deriveLiveHealth(data, LIVE_POLLING_ENABLED), [data])
 
   return {
     status,
